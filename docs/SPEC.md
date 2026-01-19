@@ -1,86 +1,157 @@
-# Geoff — Prompt Construction & Execution Tool (WSL)
+# Geoff — TUI Prompt Constructor Spec
 
 **Purpose:**
-A personal productivity tool for composing, persisting, and executing coding-agent prompts. Enables low-friction reuse of structured prompt elements, with optional looping execution in Opencode.
+Personal productivity tool for composing, persisting, and executing coding-agent prompts in WSL. Focused on low-friction mouse-first configuration, reusable prompt elements, and seamless execution in Opencode.
 
 ---
 
 ## 1. Core Concepts
 
-**Elements:**
-Named, reusable pieces of prompts with strict ordering. Persistent variables are editable, “sticky,” and scoped to global defaults, user config, or per-repo `.geoff` overrides.
+**Prompt Elements (strict fixed order):**
 
-* **PROJECT ORIENTATION**
+1. **Orientation / Study Docs**
 
-  ```
-  study <docname> <optional docnote>
-  ```
-* **TASK SOURCE (modal, required)** — choose one:
+   ```
+   study <docname> <optional docnote>
+   ```
 
-  * **Tasklist-driven**: agent selects from a persisted tasklist
+   * Multiple docs supported; add/remove inline via `[+ Add Doc]`.
+   * Persisted per repo or last-used globally; editable in-place.
 
-    ```
-    study <tasklist> and pick the most important thing to do.
-    ```
-  * **One-off prompt**: ephemeral user-supplied instruction (persisted, editable, last-used remembered)
-* **BACKPRESSURE**
+2. **Task Source (modal, required)** — choose one:
 
-  ```
-  IMPORTANT:
-  - author property based tests or unit tests (whichever is best)
-  - after performing your task run the tests
-  - when tests pass, commit to deploy changes
-  ```
-* **TASK UPDATE** (only valid in tasklist mode)
+   * **Tasklist-driven:**
 
-  ```
-  update <tasklist> when the task is done
-  ```
-* **BREADCRUMB**
+     ```
+     study <tasklist> and pick the most important thing to do.
+     ```
+   * **One-off prompt (ephemeral):**
 
-  ```
-  if you ran into difficulties due to a lack of information about the project or environment, which you then resolved, leave a note about it in <notedoc> to help future agents.
-  ```
+     * Last-used persisted; editable inline.
+     * Entered via modal or inline text box.
 
-**Ordering is fixed:** Orientation → Task Source → Backpressure → Bookkeeping.
+3. **Backpressure**
+
+   ```
+   IMPORTANT:
+   - author property based tests or unit tests (whichever is best)
+   - after performing your task run the tests
+   - when tests pass, commit to deploy changes
+   ```
+
+   * Enabled by default; toggle via checkbox.
+
+4. **Breadcrumb**
+
+   ```
+   if you ran into difficulties due to a lack of information about the project or environment, which you then resolved, leave a note about it in <notedoc> to help future agents.
+   ```
+
+   * Enabled by default; toggle via checkbox.
+
+5. **Task Update**
+
+   ```
+   update <tasklist> when the task is done
+   ```
+
+   * Automatically linked to tasklist mode; no separate checkbox.
+
+**Ordering:** Orientation → Task Source → Backpressure → Breadcrumb → Task Update (implicit)
 
 ---
 
 ## 2. Persistence & Config
 
-* **Global defaults** (built-in)
-* **User-wide config**
-* **Repo-local overrides** in `.geoff/` folder
-* All doc fields, tasklists, and one-off prompts are persisted and easily editable.
-* **Visible effective config** view recommended to prevent surprises.
+* **Three-tier model:**
+
+  1. Built-in defaults
+  2. User-wide config
+  3. Repo-local overrides in `.geoff/` folder
+* All docs, tasklists, variables, and one-off prompts are persisted and editable.
+* Visible effective config recommended to show overrides.
 
 ---
 
-## 3. Execution Modes
+## 3. Mouse-First TUI Layout
 
-1. **Copy to clipboard** — for external use
-2. **Single-run in Opencode** — executes the prompt once
-3. **Looped run in Opencode** — external harness script:
+```
++-------------------------------------------------------------+
+| GEOFF - Prompt Constructor                                  |
++----------------------+--------------------------------------+
+| Orientation / Study Docs                                    |
+|-------------------------------------------------------------|
+| Docs: [docs/PROJECT.md] [docs/TUI_REFACTOR.md] [+ Add Doc] |
+| Notes: [docs/NOTES.md]                                      |
++----------------------+
+| Task Source (modal, required)                               |
+|  (•) Tasklist Mode                                         |
+|  ( ) One-off Prompt                                        |
+|  [Select Tasklist / Enter One-off Prompt]                  |
++----------------------+
+| Backpressure                                               
+|  [x] Enforce tests & commit
++----------------------+
+| Breadcrumb                                                 
+|  [x] Leave notes for future agents
++----------------------+
+| Actions                                                     |
+| [Copy Prompt] [Run Once] [Run Loop] [Quit]                 |
++----------------------+
+| Effective Prompt (scrollable, always visible at bottom)    |
+| --------------------------------------------------------- |
+| study docs/PROJECT.md # to orient yourself                |
+| study docs/TUI_REFACTOR.md # current feature spec         |
+| check docs/NOTES.md # previous agents may have left info  |
+| IMPORTANT:                                                |
+| - author property based tests or unit tests (whichever)   |
+| - after performing your task run the tests                |
+| - when tests pass, commit to deploy changes              |
+| if you ran into difficulties due to lack of info...       |
+| update <tasklist> when the task is done                   |
+| --------------------------------------------------------- |
+```
 
-   * Computes repo hash to detect progress
-   * Stops if “stuck” for configurable iterations
-   * Independent of agent knowledge; agent sees only atomic task
+**Panels:**
+
+* **Left panel:** stacked prompt elements with editable fields.
+* **Bottom panel:** scrollable “Effective Prompt” preview.
+* **Action toolbar:** always-visible `[Copy] [Run Once] [Run Loop] [Quit]`.
+* **Modals:** task source selection or ephemeral one-off prompt input.
 
 ---
 
-## 4. UX Principles
+## 4. Interaction Principles
 
-* Minimal friction: all persistent variables editable in-place
-* Modal task source prevents incompatible element combinations
-* Defaults to last-used tasklist or one-off prompt
-* No need for named one-offs; they are ephemeral
+* **Mouse-first:** all toggles, text fields, and buttons clickable; no keyboard required.
+* **Inline editing:** click doc fields or one-off prompts to edit directly.
+* **Modal flows:** task source selection pops automatically if missing.
+* **Actions:**
+
+  * **Copy Prompt:** copies assembled prompt to clipboard
+  * **Run Once / Run Loop:** exits TUI to terminal, where Opencode output is displayed
+  * **Quit:** closes TUI
 
 ---
 
-## 5. Design Considerations
+## 5. Defaults
 
-* Strict ordering avoids complexity; elements are not rearrangeable
-* Tasklist mode enforces paired TASK SELECTION + TASK UPDATE
-* One-off mode disables tasklist-related elements
-* Repo-level `.geoff` folder provides scoped overrides, mirroring git patterns
-* Loop execution treats repo-level changes as progress, independent of task semantics
+| Element                  | Default / Behavior                         |
+| ------------------------ | ------------------------------------------ |
+| Orientation / Study Docs | Last-used doc(s); inline editable          |
+| Task Source              | Tasklist mode if tasks exist, else one-off |
+| Backpressure             | Enabled                                    |
+| Task Update              | Linked automatically to tasklist mode      |
+| Breadcrumb               | Enabled                                    |
+| Loop-run                 | Disabled; configurable via menu            |
+| Effective Prompt         | Always visible at bottom; scrollable       |
+
+---
+
+## 6. Design Considerations
+
+* Strict ordering avoids misconfiguration; elements are not rearrangeable.
+* One-off mode disables tasklist-specific elements automatically.
+* Repo-level `.geoff` folder mirrors git patterns for scoped overrides.
+* Loop-run uses external harness; agent only sees atomic task.
+* All persistent fields editable in-place to reduce friction.
