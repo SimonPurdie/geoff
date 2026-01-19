@@ -113,7 +113,7 @@ Personal productivity tool for composing, persisting, and executing coding-agent
   - Breadcrumbs: `docs/BREADCRUMBS.md`
   - Backpressure: enabled
   - Breadcrumb: enabled
-  - Max iterations: 10
+  - Max iterations: 0
 
 * User has contract to provide files at specified paths; config stores filepath references only.
 
@@ -142,10 +142,10 @@ Personal productivity tool for composing, persisting, and executing coding-agent
 |  [x] Enforce tests & commit
 +----------------------+
 | Breadcrumb                                                 
-|  [x] Leave notes for future agents
+|  [x] Leave breadcrumbs
 +----------------------+
 | Loop Configuration                                         
-|  Max iterations: [10]
+|  Max iterations: [0]
 +----------------------+
 | Actions                                                     |
 | [Copy Prompt] [Run Once] [Run Loop] [Reset] [Quit]         |
@@ -210,20 +210,20 @@ Personal productivity tool for composing, persisting, and executing coding-agent
 
   * **Copy Prompt:** copies assembled effective prompt to clipboard (validates first, shows error modal if invalid)
   * **Run Once:** validates prompt, then exits TUI to terminal and executes Opencode with prompt passed directly (not via temp file)
-  * **Run Loop:** validates prompt, then exits TUI completely and launches bash loop that runs Opencode in series until user cancels or max iterations reached; does not return to TUI
+  * **Run Loop:** validates prompt, then exits TUI completely and launches loop that runs Opencode repeatedly until user cancels, max iterations reached, or repo becomes stuck (no changes detected for `max_stuck` consecutive iterations). Loop runs in subprocess outside TUI, does not return to TUI after completion. Before each iteration, computes hash of repository state; after iteration completes, recomputes hash and compares. If hashes match (no changes), increments stuck counter; if hashes differ, resets stuck counter to 0. Breaks loop if stuck counter reaches `max_stuck` (default: 2). Sleeps 2 seconds between iterations. If `max_iterations == 0` (default), runs indefinitely until stuck or manually cancelled. If `max_iterations > 0`, also breaks after reaching iteration limit. Each iteration executes `opencode run "<prompt>" --log-level INFO`.
   * **Reset:** resets all fields to global config defaults (from `~/.geoff/geoff.yaml`)
   * **Quit:** closes TUI
 
 * **Opencode execution:**
   - Prompt passed directly to Opencode (not via temp file)
-  - Similar pattern to: `opencode run "$(cat prompt.txt)"` but with prompt passed inline
+  - Similar pattern to: `opencode run "<prompt>" --log-level INFO` but with prompt passed inline
   - TUI exits before execution, terminal shows Opencode output directly
 
 * **Loop Implementation:**
   - TUI exits completely when loop starts
   - Loop state managed by bash loop (external to TUI)
   - Loop continues until: (a) user manually cancels, or (b) max iterations reached
-  - Max iterations user-configurable in TUI (default: 10)
+  - Max iterations user-configurable in TUI (default: 0 (no limit))
   - Each iteration runs Opencode with the same assembled prompt
   - No return to TUI after loop completes
 
@@ -246,7 +246,7 @@ Personal productivity tool for composing, persisting, and executing coding-agent
 | One-off prompt           | Last-used per repo; multiline editable     |
 | Backpressure             | Enabled                                    |
 | Breadcrumb               | Enabled                                    |
-| Max iterations           | 10 (user configurable)                     |
+| Max iterations           | 0 (no limit) (user configurable)           |
 | Effective Prompt         | Always visible at bottom; scrollable       |
 
 ---
