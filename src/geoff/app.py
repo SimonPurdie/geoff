@@ -9,6 +9,7 @@ from geoff.widgets.backpressure import BackpressureWidget
 from geoff.widgets.breadcrumb import BreadcrumbWidget
 from geoff.widgets.loop_config import LoopConfigWidget
 from geoff.widgets.toolbar import ToolbarWidget
+from geoff.widgets.prompt_preview import PromptPreviewWidget
 
 
 class GeoffApp(App):
@@ -67,10 +68,15 @@ class GeoffApp(App):
 
             yield Static(" ", id="right-spacer")
 
-        yield Placeholder("Effective Prompt", id="bottom-panel")
+        yield PromptPreviewWidget(self.prompt_config, id="bottom-panel")
 
     def on_mount(self) -> None:
         self.title = "GEOFF - Prompt Constructor"
+
+    def on_config_updated(self) -> None:
+        """Handle config updates from child widgets."""
+        self.query_one(PromptPreviewWidget).update_prompt()
+        # TODO: Auto-save config (Task 21)
 
     def on_toolbar_widget_copy_prompt(self, message: ToolbarWidget.CopyPrompt) -> None:
         self.notify("Copy Prompt not implemented yet")
