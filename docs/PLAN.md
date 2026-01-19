@@ -12,8 +12,8 @@
 - [x] 8. Orientation/Study Docs panel
 - [x] 9. Task Source panel with mode switching
 - [x] 10. Backpressure toggle panel
-- [ ] 11. Breadcrumb toggle panel
-- [ ] 12. Loop configuration panel
+- [x] 11. Breadcrumb toggle panel
+- [x] 12. Loop configuration panel
 - [ ] 13. Action toolbar
 - [ ] 14. Effective Prompt preview panel
 - [ ] 15. Validation system
