@@ -1,0 +1,108 @@
+from textual.app import ComposeResult
+from textual.containers import Vertical
+from textual.widgets import Static, Label, Input, TextArea, RadioSet, RadioButton
+from textual.message import Message
+from textual import on
+
+from geoff.config import PromptConfig
+
+
+class TaskSourceWidget(Static):
+    DEFAULT_CSS = """
+    TaskSourceWidget {
+        layout: vertical;
+        height: auto;
+        border: solid $primary;
+        padding: 1;
+        margin-bottom: 1;
+    }
+
+    TaskSourceWidget .section-title {
+        text-style: bold;
+        margin-bottom: 1;
+    }
+
+    TaskSourceWidget RadioSet {
+        layout: vertical;
+        margin-bottom: 1;
+    }
+    
+    TaskSourceWidget TextArea {
+        height: 8;
+        border: solid $secondary;
+    }
+    """
+
+    class ConfigUpdated(Message):
+        """Message sent when config is updated."""
+
+        pass
+
+    def __init__(self, config: PromptConfig, **kwargs):
+        super().__init__(**kwargs)
+        self.config = config
+
+    def compose(self) -> ComposeResult:
+        yield Label(
+            "Task Source (mutually exclusive, required)", classes="section-title"
+        )
+
+        with RadioSet(id="mode-radios"):
+            yield RadioButton(
+                "Tasklist Mode",
+                id="mode-tasklist",
+                value=(self.config.task_mode == "tasklist"),
+            )
+            yield RadioButton(
+                "One-off Prompt",
+                id="mode-oneoff",
+                value=(self.config.task_mode == "oneoff"),
+            )
+
+        # Tasklist input
+        yield Label("Tasklist File:", id="tasklist-label")
+        yield Input(
+            value=self.config.tasklist_file,
+            id="tasklist-input",
+            placeholder="Path to tasklist file",
+        )
+
+        # One-off prompt input
+        yield Label("One-off Prompt:", id="oneoff-label")
+        yield TextArea(
+            self.config.oneoff_prompt, id="oneoff-input", show_line_numbers=False
+        )
+
+    def on_mount(self) -> None:
+        # Set initial visibility based on mode
+        self.update_visibility()
+
+    def update_visibility(self) -> None:
+        is_tasklist = self.config.task_mode == "tasklist"
+
+        self.query_one("#tasklist-label").display = is_tasklist
+        self.query_one("#tasklist-input").display = is_tasklist
+
+        self.query_one("#oneoff-label").display = not is_tasklist
+        self.query_one("#oneoff-input").display = not is_tasklist
+
+    @on(RadioSet.Changed, "#mode-radios")
+    def on_mode_changed(self, event: RadioSet.Changed) -> None:
+        if event.pressed.id == "mode-tasklist":
+            self.config.task_mode = "tasklist"
+        elif event.pressed.id == "mode-oneoff":
+            self.config.task_mode = "oneoff"
+
+        self.update_visibility()
+        self.post_message(self.ConfigUpdated())
+
+    @on(Input.Changed, "#tasklist-input")
+    def on_tasklist_changed(self, event: Input.Changed) -> None:
+        self.config.tasklist_file = event.value
+        self.post_message(self.ConfigUpdated())
+
+    @on(TextArea.Changed, "#oneoff-input")
+    def on_oneoff_changed(self, event: TextArea.Changed) -> None:
+        # event.text_area contains the content of the TextArea
+        self.config.oneoff_prompt = event.text_area.text
+        self.post_message(self.ConfigUpdated())
