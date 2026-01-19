@@ -11,7 +11,7 @@
 - [x] 7. Main application container
 - [x] 8. Orientation/Study Docs panel
 - [x] 9. Task Source panel with mode switching
-- [ ] 10. Backpressure toggle panel
+- [x] 10. Backpressure toggle panel
 - [ ] 11. Breadcrumb toggle panel
 - [ ] 12. Loop configuration panel
 - [ ] 13. Action toolbar
