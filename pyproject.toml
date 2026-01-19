@@ -1,0 +1,18 @@
+[project]
+name = "geoff"
+version = "0.1.0"
+description = "a prompt toolkit following geofflike patterns"
+authors = [{name = "simon purdie", email = "hoopmonkey@gmail.com"}]
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.11"
+dependencies = [
+    "pytest>=9.0.2",
+]
+
+[project.scripts]
+geoff = "geoff.main:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
