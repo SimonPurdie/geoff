@@ -7,6 +7,8 @@ from geoff.widgets.study_docs import StudyDocsWidget
 from geoff.widgets.task_source import TaskSourceWidget
 from geoff.widgets.backpressure import BackpressureWidget
 from geoff.widgets.breadcrumb import BreadcrumbWidget
+from geoff.widgets.loop_config import LoopConfigWidget
+from geoff.widgets.toolbar import ToolbarWidget
 
 
 class GeoffApp(App):
@@ -60,10 +62,8 @@ class GeoffApp(App):
                 yield TaskSourceWidget(self.prompt_config, id="task-source")
                 yield BackpressureWidget(self.prompt_config, id="backpressure")
                 yield BreadcrumbWidget(self.prompt_config, id="breadcrumb")
-                yield Placeholder(
-                    "Loop Configuration", id="loop-config", classes="panel-item"
-                )
-                yield Placeholder("Actions", id="actions", classes="panel-item")
+                yield LoopConfigWidget(self.prompt_config, id="loop-config")
+                yield ToolbarWidget(id="actions")
 
             yield Static(" ", id="right-spacer")
 
@@ -71,3 +71,18 @@ class GeoffApp(App):
 
     def on_mount(self) -> None:
         self.title = "GEOFF - Prompt Constructor"
+
+    def on_toolbar_widget_copy_prompt(self, message: ToolbarWidget.CopyPrompt) -> None:
+        self.notify("Copy Prompt not implemented yet")
+
+    def on_toolbar_widget_run_once(self, message: ToolbarWidget.RunOnce) -> None:
+        self.notify("Run Once not implemented yet")
+
+    def on_toolbar_widget_run_loop(self, message: ToolbarWidget.RunLoop) -> None:
+        self.notify("Run Loop not implemented yet")
+
+    def on_toolbar_widget_reset(self, message: ToolbarWidget.Reset) -> None:
+        self.notify("Reset not implemented yet")
+
+    def on_toolbar_widget_quit(self, message: ToolbarWidget.Quit) -> None:
+        self.exit()

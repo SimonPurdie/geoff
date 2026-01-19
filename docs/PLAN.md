@@ -14,7 +14,7 @@
 - [x] 10. Backpressure toggle panel
 - [x] 11. Breadcrumb toggle panel
 - [x] 12. Loop configuration panel
-- [ ] 13. Action toolbar
+- [x] 13. Action toolbar
 - [ ] 14. Effective Prompt preview panel
 - [ ] 15. Validation system
 - [ ] 16. Clipboard integration
