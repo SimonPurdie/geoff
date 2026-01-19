@@ -4,6 +4,8 @@ from textual.widgets import Header, Static, Placeholder
 
 from geoff.config_manager import ConfigManager
 from geoff.widgets.study_docs import StudyDocsWidget
+from geoff.widgets.task_source import TaskSourceWidget
+from geoff.widgets.backpressure import BackpressureWidget
 
 
 class GeoffApp(App):
@@ -54,10 +56,8 @@ class GeoffApp(App):
         with Container(id="main-body"):
             with VerticalScroll(id="left-panel"):
                 yield StudyDocsWidget(self.prompt_config, id="study-docs")
-                yield Placeholder("Task Source", id="task-source", classes="panel-item")
-                yield Placeholder(
-                    "Backpressure", id="backpressure", classes="panel-item"
-                )
+                yield TaskSourceWidget(self.prompt_config, id="task-source")
+                yield BackpressureWidget(self.prompt_config, id="backpressure")
                 yield Placeholder("Breadcrumb", id="breadcrumb", classes="panel-item")
                 yield Placeholder(
                     "Loop Configuration", id="loop-config", classes="panel-item"
