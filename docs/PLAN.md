@@ -2,14 +2,14 @@
 
 ## Checklist
 
-- [ ] 1. Project scaffolding with UV
-- [ ] 2. Core dependencies installation
-- [ ] 3. Config data models
-- [ ] 4. Config file I/O layer
-- [ ] 5. Three-tier config resolution
-- [ ] 6. Prompt assembly engine
-- [ ] 7. Main application container
-- [ ] 8. Orientation/Study Docs panel
+- [x] 1. Project scaffolding with UV
+- [x] 2. Core dependencies installation
+- [x] 3. Config data models
+- [x] 4. Config file I/O layer
+- [x] 5. Three-tier config resolution
+- [x] 6. Prompt assembly engine
+- [x] 7. Main application container
+- [x] 8. Orientation/Study Docs panel
 - [ ] 9. Task Source panel with mode switching
 - [ ] 10. Backpressure toggle panel
 - [ ] 11. Breadcrumb toggle panel

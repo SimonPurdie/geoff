@@ -1,5 +1,10 @@
+import sys
+from geoff.app import GeoffApp
+
+
 def main():
-    print("Hello from geoff!")
+    app = GeoffApp()
+    app.run()
 
 
 if __name__ == "__main__":
