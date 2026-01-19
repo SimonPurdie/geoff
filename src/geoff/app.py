@@ -6,6 +6,7 @@ from geoff.config_manager import ConfigManager
 from geoff.widgets.study_docs import StudyDocsWidget
 from geoff.widgets.task_source import TaskSourceWidget
 from geoff.widgets.backpressure import BackpressureWidget
+from geoff.widgets.breadcrumb import BreadcrumbWidget
 
 
 class GeoffApp(App):
@@ -58,7 +59,7 @@ class GeoffApp(App):
                 yield StudyDocsWidget(self.prompt_config, id="study-docs")
                 yield TaskSourceWidget(self.prompt_config, id="task-source")
                 yield BackpressureWidget(self.prompt_config, id="backpressure")
-                yield Placeholder("Breadcrumb", id="breadcrumb", classes="panel-item")
+                yield BreadcrumbWidget(self.prompt_config, id="breadcrumb")
                 yield Placeholder(
                     "Loop Configuration", id="loop-config", classes="panel-item"
                 )
