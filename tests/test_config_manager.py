@@ -2,6 +2,8 @@ from pathlib import Path
 from geoff.config_manager import ConfigManager, BASE_PROMPT_STRING_KEYS
 from geoff.config import PromptConfig
 from geoff.config_io import load_yaml, save_yaml
+from hypothesis import given, settings, HealthCheck
+from hypothesis.strategies import lists, text
 
 
 def test_resolve_defaults(tmp_path):
@@ -86,6 +88,24 @@ def test_base_prompt_strings_precedence_user_over_repo(tmp_path):
     assert config.prompt_tasklist_study == user_custom
 
 
+def test_base_prompt_strings_lines_precedence_user_over_repo(tmp_path):
+    cm = ConfigManager(working_dir=tmp_path)
+    global_path = tmp_path / "global.yaml"
+    cm.global_config_path = global_path
+
+    repo_path = tmp_path / ".geoff" / "geoff.yaml"
+
+    user_custom_lines = ["- user line 1", "- user line 2"]
+    repo_custom_lines = ["- repo line 1", "- repo line 2", "- repo line 3"]
+
+    save_yaml(global_path, {"prompt_backpressure_lines": user_custom_lines})
+    save_yaml(repo_path, {"prompt_backpressure_lines": repo_custom_lines})
+
+    config = cm.resolve_config()
+
+    assert config.prompt_backpressure_lines == user_custom_lines
+
+
 def test_base_prompt_strings_precedence_user_over_default(tmp_path):
     cm = ConfigManager(working_dir=tmp_path)
     global_path = tmp_path / "global.yaml"
@@ -98,6 +118,24 @@ def test_base_prompt_strings_precedence_user_over_default(tmp_path):
     config = cm.resolve_config()
 
     assert config.prompt_backpressure_header == user_custom
+
+
+def test_base_prompt_strings_lines_loaded_from_global(tmp_path):
+    cm = ConfigManager(working_dir=tmp_path)
+    global_path = tmp_path / "global.yaml"
+    cm.global_config_path = global_path
+
+    user_custom_lines = [
+        "- first custom line",
+        "- second custom line",
+        "- third custom line",
+    ]
+
+    save_yaml(global_path, {"prompt_backpressure_lines": user_custom_lines})
+
+    config = cm.resolve_config()
+
+    assert config.prompt_backpressure_lines == user_custom_lines
 
 
 def test_base_prompt_strings_materialize_default_when_no_user_no_repo(tmp_path):
@@ -218,3 +256,23 @@ def test_base_prompt_strings_preserves_existing_non_base_keys(tmp_path):
     assert loaded is not None
     assert loaded.get("max_iterations") == 42
     assert loaded.get("task_mode") == "oneoff"
+
+
+@given(
+    prompt_backpressure_lines=lists(
+        text(min_size=5, max_size=50), min_size=1, max_size=5
+    ),
+)
+@settings(max_examples=30, suppress_health_check=[HealthCheck.function_scoped_fixture])
+def test_base_prompt_strings_lines_loaded_from_global_property(
+    tmp_path, prompt_backpressure_lines
+):
+    cm = ConfigManager(working_dir=tmp_path)
+    global_path = tmp_path / "global.yaml"
+    cm.global_config_path = global_path
+
+    save_yaml(global_path, {"prompt_backpressure_lines": prompt_backpressure_lines})
+
+    config = cm.resolve_config()
+
+    assert config.prompt_backpressure_lines == prompt_backpressure_lines
