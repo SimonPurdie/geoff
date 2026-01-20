@@ -5,7 +5,7 @@ A TUI utility for vibecoding, assists with prompt structure / engineering patter
 Inspired by the advice of [Geoffrey Huntley](https://github.com/ghuntley).
 
 > [!TIP]
-> This is a janky personal utility. Don't download it. If you want something similar, maybe grab [the prompt](`docs/SPEC.md`) and make something to your tastes.
+> This is a janky personal utility. Don't download it. If you want something similar, maybe grab [the prompt](docs/SPEC.md) and make something to your tastes.
 
 ![poorly compressed digital photo of a terminal user interface](docs/geoff.jpg)
 
