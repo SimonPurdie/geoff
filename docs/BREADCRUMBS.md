@@ -1,5 +1,9 @@
 # Breadcrumbs
 
+- **Task 21 (State Persistence):** Implemented auto-save config in `on_config_updated()` handler. The `_save_config()` method calls `ConfigManager.save_repo_config()` with error handling. Reset functionality removes repo config file and reloads from global defaults. Widget state resets immediately for prompt preview; full UI refresh would require app restart for dynamic widgets like study docs list.
+
+- **Task 20 (Reset Functionality):** Reset clears repo-level `.geoff/geoff.yaml` and reloads config. The prompt preview updates immediately. Note: some widgets like StudyDocsWidget with dynamic doc lists may need app restart to fully reflect defaults in their internal state.
+
 - **Task 16 (Clipboard Integration):** Successfully implemented clipboard integration with validation. The `copy_to_clipboard()` function uses `pyperclip.copy()` and returns a boolean indicating success. The Copy Prompt handler validates the config first, builds the prompt, then copies it to clipboard. Validation failures show as error notifications. Textual's `notify()` method uses severity levels `information`, `warning`, and `error` (not `success`).
 
 - **Task 15 (Validation System):** When testing with default PromptConfig values, the default `study_docs=["docs/SPEC.md"]`, `task_mode="tasklist"`, and `breadcrumb_enabled=True` mean validation will fail for missing files even if you're only testing a specific feature. Tests should either:
