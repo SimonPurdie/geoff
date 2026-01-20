@@ -1,5 +1,7 @@
 # Breadcrumbs
 
+- **Task 19 (Error Modal Dialogs):** Implemented ErrorModal widget as a ModalScreen that displays validation errors. When testing ModalScreen widgets, I found that they aren't queryable via `app.query_one()` when pushed to the screen stack. Instead, I had to access modals through `app.screen_stack[-1]` to verify their content and state. Also discovered that `Static.render()` returns the content object (not `renderable`), which should be cast to `str` for assertions. The modal's presence can be verified by checking `len(app.screen_stack) > 1`.
+
 - **Task 22 (Executor Implementation):** Implemented Opencode execution layer (Items 17-18) by creating `src/geoff/executor.py` with `execute_opencode_once()` and `execute_opencode_loop()` functions. The loop harness includes change detection using git HEAD hash (with fallback to directory content hashing), stuck iteration detection, and configurable max_iterations and max_stuck parameters. Wrote 22 unit tests in `tests/test_executor.py` covering all executor functionality. Updated `app.py` to use the executor for Run Once and Run Loop actions.
 
 - **Task 21 (State Persistence):** Implemented auto-save config in `on_config_updated()` handler. The `_save_config()` method calls `ConfigManager.save_repo_config()` with error handling. Reset functionality removes repo config file and reloads from global defaults. Widget state resets immediately for prompt preview; full UI refresh would require app restart for dynamic widgets like study docs list.
