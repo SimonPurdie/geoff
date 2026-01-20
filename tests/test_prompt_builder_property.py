@@ -274,3 +274,128 @@ def test_max_iterations_does_not_affect_prompt(max_iterations):
     prompt2 = build_prompt(config2)
 
     assert prompt1 == prompt2
+
+
+@given(
+    prompt_tasklist_study=text_strategy(min_size=5, max_size=50),
+    tasklist_file=filepath_strategy(),
+)
+@settings(max_examples=30)
+def test_custom_tasklist_study_string_used(prompt_tasklist_study, tasklist_file):
+    config = PromptConfig(
+        task_mode="tasklist",
+        tasklist_file=tasklist_file,
+        prompt_tasklist_study=prompt_tasklist_study,
+    )
+    prompt = build_prompt(config)
+
+    expected = prompt_tasklist_study.format(tasklist=tasklist_file)
+    assert expected in prompt
+
+
+@given(
+    prompt_tasklist_update=text_strategy(min_size=5, max_size=50),
+    tasklist_file=filepath_strategy(),
+)
+@settings(max_examples=30)
+def test_custom_tasklist_update_string_used(prompt_tasklist_update, tasklist_file):
+    config = PromptConfig(
+        task_mode="tasklist",
+        tasklist_file=tasklist_file,
+        prompt_tasklist_update=prompt_tasklist_update,
+    )
+    prompt = build_prompt(config)
+
+    expected = prompt_tasklist_update.format(tasklist=tasklist_file)
+    assert expected in prompt
+
+
+@given(
+    prompt_backpressure_header=text_strategy(min_size=1, max_size=30),
+)
+@settings(max_examples=30)
+def test_custom_backpressure_header_used(prompt_backpressure_header):
+    config = PromptConfig(
+        backpressure_enabled=True,
+        prompt_backpressure_header=prompt_backpressure_header,
+    )
+    prompt = build_prompt(config)
+
+    assert prompt_backpressure_header in prompt
+
+
+@given(
+    prompt_backpressure_lines=st.lists(
+        text_strategy(min_size=5, max_size=50), max_size=5
+    ),
+)
+@settings(max_examples=30)
+def test_custom_backpressure_lines_used(prompt_backpressure_lines):
+    config = PromptConfig(
+        backpressure_enabled=True,
+        prompt_backpressure_lines=prompt_backpressure_lines,
+    )
+    prompt = build_prompt(config)
+
+    for line in prompt_backpressure_lines:
+        assert line in prompt
+
+
+@given(
+    prompt_breadcrumb_instruction=text_strategy(min_size=10, max_size=100),
+    breadcrumbs_file=filepath_strategy(),
+)
+@settings(max_examples=30)
+def test_custom_breadcrumb_instruction_used(
+    prompt_breadcrumb_instruction, breadcrumbs_file
+):
+    config = PromptConfig(
+        breadcrumb_enabled=True,
+        breadcrumbs_file=breadcrumbs_file,
+        prompt_breadcrumb_instruction=prompt_breadcrumb_instruction,
+    )
+    prompt = build_prompt(config)
+
+    expected = prompt_breadcrumb_instruction.format(breadcrumbs=breadcrumbs_file)
+    assert expected in prompt
+
+
+@given(
+    prompt_tasklist_study=text_strategy(min_size=5, max_size=50),
+    prompt_tasklist_update=text_strategy(min_size=5, max_size=50),
+    prompt_backpressure_header=text_strategy(min_size=1, max_size=30),
+    prompt_backpressure_lines=st.lists(
+        text_strategy(min_size=5, max_size=50), max_size=3
+    ),
+    prompt_breadcrumb_instruction=text_strategy(min_size=10, max_size=100),
+    tasklist_file=filepath_strategy(),
+    breadcrumbs_file=filepath_strategy(),
+)
+@settings(max_examples=20)
+def test_all_custom_strings_used_together(
+    prompt_tasklist_study,
+    prompt_tasklist_update,
+    prompt_backpressure_header,
+    prompt_backpressure_lines,
+    prompt_breadcrumb_instruction,
+    tasklist_file,
+    breadcrumbs_file,
+):
+    config = PromptConfig(
+        task_mode="tasklist",
+        tasklist_file=tasklist_file,
+        breadcrumbs_file=breadcrumbs_file,
+        prompt_tasklist_study=prompt_tasklist_study,
+        prompt_tasklist_update=prompt_tasklist_update,
+        prompt_backpressure_header=prompt_backpressure_header,
+        prompt_backpressure_lines=prompt_backpressure_lines,
+        prompt_breadcrumb_instruction=prompt_breadcrumb_instruction,
+    )
+    prompt = build_prompt(config)
+
+    assert prompt_tasklist_study.format(tasklist=tasklist_file) in prompt
+    assert prompt_tasklist_update.format(tasklist=tasklist_file) in prompt
+    assert prompt_backpressure_header in prompt
+    for line in prompt_backpressure_lines:
+        assert line in prompt
+    assert prompt_breadcrumb_instruction.format(breadcrumbs=breadcrumbs_file) in prompt

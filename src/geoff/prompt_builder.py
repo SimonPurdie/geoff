@@ -17,7 +17,9 @@ def build_prompt(config: PromptConfig) -> str:
     if config.task_mode == "tasklist":
         if config.tasklist_file.strip():
             lines.append(
-                f"study {config.tasklist_file.strip()} and pick the most important thing to do."
+                config.prompt_tasklist_study.format(
+                    tasklist=config.tasklist_file.strip()
+                )
             )
     elif config.task_mode == "oneoff":
         if config.oneoff_prompt.strip():
@@ -25,19 +27,22 @@ def build_prompt(config: PromptConfig) -> str:
 
     # 3. Backpressure
     if config.backpressure_enabled:
-        lines.append("IMPORTANT:")
-        lines.append("- author property based tests or unit tests (whichever is best)")
-        lines.append("- after performing your task run the tests")
-        lines.append("- when tests pass, commit to deploy changes")
+        lines.append(config.prompt_backpressure_header)
+        for line in config.prompt_backpressure_lines:
+            lines.append(line)
 
     # 4. Breadcrumb Instruction
     if config.breadcrumb_enabled and config.breadcrumbs_file.strip():
         lines.append(
-            f"if you ran into difficulties due to a lack of information about the project or environment, which you then resolved, leave a note about it in {config.breadcrumbs_file.strip()} to help future agents."
+            config.prompt_breadcrumb_instruction.format(
+                breadcrumbs=config.breadcrumbs_file.strip()
+            )
         )
 
     # 5. Task Update
     if config.task_mode == "tasklist" and config.tasklist_file.strip():
-        lines.append(f"update {config.tasklist_file.strip()} when the task is done")
+        lines.append(
+            config.prompt_tasklist_update.format(tasklist=config.tasklist_file.strip())
+        )
 
     return "\n".join(lines)
