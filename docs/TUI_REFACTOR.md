@@ -158,7 +158,25 @@ The application will transition from a `Horizontal` split (Left Panel + Right Sp
   - `test_breadcrumb_file_existence`: Tests breadcrumb file validation (empty path when enabled, nonexistent file)
   - `test_tasklist_file_existence`: Tests tasklist file validation (empty path when enabled, nonexistent file)
   - `test_oneoff_prompt_validation`: Tests one-off prompt validation (empty/whitespace vs valid)
-  - `test_max_iterations_validation`: Tests max_iterations must be >= 0
-  - `test_max_stuck_validation`: Tests max_stuck must be >= 0
-  - `test_is_valid_matches_validate`: Tests that is_valid() matches validate() results
-  - `test_empty_study_doc_list_valid`: Tests that empty study doc list is valid
+   - `test_max_iterations_validation`: Tests max_iterations must be >= 0
+   - `test_max_stuck_validation`: Tests max_stuck must be >= 0
+   - `test_is_valid_matches_validate`: Tests that is_valid() matches validate() results
+   - `test_empty_study_doc_list_valid`: Tests that empty study doc list is valid
+
+### Task 6: Property-Based Tests for ToolbarWidget - COMPLETED
+- **Date:** 2026-01-20
+- **Changes:**
+  - Added 9 new property-based tests for ToolbarWidget
+  - Tests cover: button existence, ID verification, message triggering for all actions (Copy, Run Once, Run Loop, Reset, Quit), and comprehensive message firing
+  - All 166 tests pass (9 new tests added to existing 157)
+- **Tests:**
+  - `test_toolbar_all_buttons_exist_property`: Tests all 5 buttons exist
+  - `test_toolbar_copy_button_triggers_message`: Tests Copy button triggers CopyPrompt message
+  - `test_toolbar_run_once_button_triggers_message`: Tests Run Once button triggers RunOnce message
+  - `test_toolbar_run_loop_button_triggers_message`: Tests Run Loop button triggers RunLoop message
+  - `test_toolbar_reset_button_triggers_message`: Tests Reset button triggers Reset message
+  - `test_toolbar_quit_button_triggers_message`: Tests Quit button triggers Quit message
+  - `test_toolbar_composes_correct_number_of_buttons`: Verifies 5 buttons are composed
+  - `test_toolbar_all_buttons_have_ids`: Tests all buttons have correct IDs
+  - `test_toolbar_all_buttons_fire_messages`: Tests all buttons fire their respective messages
+
