@@ -26,7 +26,7 @@ while true; do
   echo "Running Ralph at $(date)"
   
   # Run Ralph headless and stream output
-  opencode run "$(cat "$PROMPT_FILE")" --log-level INFO 2>&1 | tee ralph_output.log
+  opencode run "$(cat "$PROMPT_FILE")" -m opencode/minimax-m2.1-free --log-level INFO 2>&1 | tee ralph_output.log
 
   # Compute new hash
   NEW_HASH=$(compute_hash | awk '{print $1}')
