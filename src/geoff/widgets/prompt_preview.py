@@ -38,5 +38,7 @@ class PromptPreviewWidget(VerticalScroll):
     def compose(self):
         yield self.prompt_text
 
-    def update_prompt(self):
+    def update_prompt(self, config: PromptConfig | None = None):
+        if config:
+            self.config_data = config
         self.prompt_text.update(build_prompt(self.config_data))

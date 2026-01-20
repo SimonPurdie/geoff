@@ -6,6 +6,7 @@ from textual import on
 from textual.validation import Number, Function
 
 from geoff.config import PromptConfig
+from geoff.messages import ConfigUpdated
 
 
 class LoopConfigWidget(Static):
@@ -71,11 +72,6 @@ class LoopConfigWidget(Static):
     }
     """
 
-    class ConfigUpdated(Message):
-        """Message sent when config is updated."""
-
-        pass
-
     def __init__(self, config: PromptConfig, **kwargs):
         super().__init__(**kwargs)
         self.config = config
@@ -117,7 +113,7 @@ class LoopConfigWidget(Static):
                 val = int(event.value)
                 self.config.max_iterations = val
                 self._update_infinity_indicator()
-                self.post_message(self.ConfigUpdated())
+                self.post_message(ConfigUpdated())
             except ValueError:
                 pass  # Should be caught by validator but just in case
 
@@ -127,9 +123,15 @@ class LoopConfigWidget(Static):
             try:
                 val = int(event.value)
                 self.config.max_stuck = val
-                self.post_message(self.ConfigUpdated())
+                self.post_message(ConfigUpdated())
             except ValueError:
                 pass
+
+    def update_from_config(self, config: PromptConfig) -> None:
+        self.config = config
+        self.query_one("#max-iterations", Input).value = str(config.max_iterations)
+        self.query_one("#max-stuck", Input).value = str(config.max_stuck)
+        self._update_infinity_indicator()
 
     def _update_infinity_indicator(self) -> None:
         indicator = self.query_one("#infinity-indicator", Label)

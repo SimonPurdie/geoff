@@ -1,9 +1,9 @@
 from textual.app import ComposeResult
 from textual.widgets import Static, Checkbox, Label
-from textual.message import Message
 from textual import on
 
 from geoff.config import PromptConfig
+from geoff.messages import ConfigUpdated
 
 
 class BreadcrumbWidget(Static):
@@ -51,11 +51,6 @@ class BreadcrumbWidget(Static):
     }
     """
 
-    class ConfigUpdated(Message):
-        """Message sent when config is updated."""
-
-        pass
-
     def __init__(self, config: PromptConfig, **kwargs):
         super().__init__(**kwargs)
         self.config = config
@@ -71,4 +66,10 @@ class BreadcrumbWidget(Static):
     @on(Checkbox.Changed, "#breadcrumb-checkbox")
     def on_checkbox_changed(self, event: Checkbox.Changed) -> None:
         self.config.breadcrumb_enabled = event.value
-        self.post_message(self.ConfigUpdated())
+        self.post_message(ConfigUpdated())
+
+    def update_from_config(self, config: PromptConfig) -> None:
+        self.config = config
+        self.query_one(
+            "#breadcrumb-checkbox", Checkbox
+        ).value = config.breadcrumb_enabled

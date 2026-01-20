@@ -1,10 +1,10 @@
 from textual.app import ComposeResult
 from textual.containers import Vertical
 from textual.widgets import Static, Label, Input, TextArea, RadioSet, RadioButton
-from textual.message import Message
 from textual import on
 
 from geoff.config import PromptConfig
+from geoff.messages import ConfigUpdated
 
 
 class TaskSourceWidget(Static):
@@ -78,11 +78,6 @@ class TaskSourceWidget(Static):
     }
     """
 
-    class ConfigUpdated(Message):
-        """Message sent when config is updated."""
-
-        pass
-
     def __init__(self, config: PromptConfig, **kwargs):
         super().__init__(**kwargs)
         self.config = config
@@ -139,15 +134,25 @@ class TaskSourceWidget(Static):
             self.config.task_mode = "oneoff"
 
         self.update_visibility()
-        self.post_message(self.ConfigUpdated())
+        self.post_message(ConfigUpdated())
 
     @on(Input.Changed, "#tasklist-input")
     def on_tasklist_changed(self, event: Input.Changed) -> None:
         self.config.tasklist_file = event.value
-        self.post_message(self.ConfigUpdated())
+        self.post_message(ConfigUpdated())
 
     @on(TextArea.Changed, "#oneoff-input")
     def on_oneoff_changed(self, event: TextArea.Changed) -> None:
         # event.text_area contains the content of the TextArea
         self.config.oneoff_prompt = event.text_area.text
-        self.post_message(self.ConfigUpdated())
+        self.post_message(ConfigUpdated())
+
+    def update_from_config(self, config: PromptConfig) -> None:
+        self.config = config
+        self.query_one("#mode-tasklist", RadioButton).value = (
+            config.task_mode == "tasklist"
+        )
+        self.query_one("#mode-oneoff", RadioButton).value = config.task_mode == "oneoff"
+        self.query_one("#tasklist-input", Input).value = config.tasklist_file
+        self.query_one("#oneoff-input", TextArea).text = config.oneoff_prompt
+        self.update_visibility()

@@ -7,7 +7,6 @@ from geoff.config_manager import ConfigManager
 from geoff.prompt_builder import build_prompt
 from geoff.validator import PromptValidator
 from geoff.clipboard import copy_to_clipboard
-from geoff.executor import execute_opencode_once, execute_opencode_loop
 from geoff.messages import ConfigUpdated
 from geoff.widgets.study_docs import StudyDocsWidget
 from geoff.widgets.task_source import TaskSourceWidget
@@ -162,8 +161,7 @@ class GeoffApp(App):
             return
 
         prompt = build_prompt(self.prompt_config)
-        self.exit()
-        execute_opencode_once(prompt)
+        self.exit(("run_once", prompt))
 
     def on_toolbar_widget_run_loop(self, message: ToolbarWidget.RunLoop) -> None:
         errors = self.validator.validate(self.prompt_config)
@@ -172,11 +170,13 @@ class GeoffApp(App):
             return
 
         prompt = build_prompt(self.prompt_config)
-        self.exit()
-        execute_opencode_loop(
-            prompt,
-            max_iterations=self.prompt_config.max_iterations,
-            max_stuck=self.prompt_config.max_stuck,
+        self.exit(
+            (
+                "run_loop",
+                prompt,
+                self.prompt_config.max_iterations,
+                self.prompt_config.max_stuck,
+            )
         )
 
     async def on_toolbar_widget_reset(self, message: ToolbarWidget.Reset) -> None:
