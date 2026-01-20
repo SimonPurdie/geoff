@@ -1,21 +1,65 @@
 # preview_tui.py
 
-A command-line utility for previewing and validating the Geoff TUI layout.
+A command-line utility for previewing and validating the Geoff TUI layout, optimized for agentic workflows.
 
 ## Purpose
 
-This utility launches the Geoff TUI in test mode and validates that all required UI widgets are present, visible, and rendering correctly. It is primarily used for:
+This utility launches the Geoff TUI in test mode and extracts rich spatial and state information. It is designed to help spatially-adept models (like LLMs) understand the TUI's current state, layout, and interactive elements.
 
-- Verifying TUI layout during development
-- Detecting missing or zero-size widgets
-- Validating widget visibility and positioning
-- Testing TUI rendering at different terminal sizes
+- **Spatial Mapping**: Generates a high-resolution ASCII map of the terminal layout.
+- **State Extraction**: Captures current values of inputs, labels of buttons, and states of checkboxes.
+- **Focus Tracking**: Identifies which widget currently holds input focus.
+- **Hierarchy Analysis**: Provides a complete tree view of all UI components.
 
 ## Usage
 
 ```bash
-python utils/preview_tui.py [options]
+uv run python3 utils/preview_tui.py [options]
 ```
+
+### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--width WIDTH` | Terminal width in columns | 120 |
+| `--height HEIGHT` | Terminal height in rows | 40 |
+| `--timeout SECONDS` | Render timeout in seconds | 2.0 |
+| `-h, --help` | Show help message | - |
+
+## Output Sections
+
+### 1. High-Resolution Spatial Map
+A 1:1 character grid representing the terminal.
+- `+`, `-`, `|`: Widget boundaries.
+- `Text`: Widget IDs placed within their respective regions.
+- This section allows agents to calculate exact mouse click coordinates or relative positions.
+
+### 2. Interactable Widgets
+A table of widgets that can be interacted with (Inputs, Buttons, etc.)
+- **ID**: The widget's unique identifier.
+- **TYPE**: The Textual widget class.
+- **POS/SIZE**: Exact coordinates `(x, y)` and dimensions `(w, h)`.
+- **VALUE/TEXT**: Current state or label.
+- **Focus (`*`)**: An asterisk indicates the widget currently has focus.
+
+### 3. Full Hierarchy
+A tree view of all widgets, including internal/anonymous ones.
+- `[V-]`: Visible
+- `[H-]`: Hidden
+- `[VF]`: Visible and Focused
+
+## Integration for Agents
+
+Agents can use this utility to "see" the UI before performing actions:
+
+```bash
+# 1. Check current state
+uv run python3 utils/preview_tui.py --width 100 --height 30
+
+# 2. Based on output, click a button
+# (Example: btn-run-once is at (19, 72) with size 16x3)
+```
+
 
 ### Options
 
