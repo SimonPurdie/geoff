@@ -3,6 +3,9 @@ from textual.containers import Container, VerticalScroll
 from textual.widgets import Header, Static, Placeholder
 
 from geoff.config_manager import ConfigManager
+from geoff.prompt_builder import build_prompt
+from geoff.validator import PromptValidator
+from geoff.clipboard import copy_to_clipboard
 from geoff.widgets.study_docs import StudyDocsWidget
 from geoff.widgets.task_source import TaskSourceWidget
 from geoff.widgets.backpressure import BackpressureWidget
@@ -53,6 +56,7 @@ class GeoffApp(App):
         super().__init__()
         self.config_manager = ConfigManager()
         self.prompt_config = self.config_manager.resolve_config()
+        self.validator = PromptValidator()
 
     def compose(self) -> ComposeResult:
         yield Header(show_clock=True)
@@ -79,7 +83,16 @@ class GeoffApp(App):
         # TODO: Auto-save config (Task 21)
 
     def on_toolbar_widget_copy_prompt(self, message: ToolbarWidget.CopyPrompt) -> None:
-        self.notify("Copy Prompt not implemented yet")
+        errors = self.validator.validate(self.prompt_config)
+        if errors:
+            self.notify(f"Validation failed: {'; '.join(errors)}", severity="error")
+            return
+
+        prompt = build_prompt(self.prompt_config)
+        if copy_to_clipboard(prompt):
+            self.notify("Prompt copied to clipboard", severity="information")
+        else:
+            self.notify("Failed to copy to clipboard", severity="error")
 
     def on_toolbar_widget_run_once(self, message: ToolbarWidget.RunOnce) -> None:
         self.notify("Run Once not implemented yet")
