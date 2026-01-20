@@ -139,26 +139,35 @@ class TaskSourceWidget(Static):
     }
 
     TaskSourceWidget Checkbox:focus > .toggle--button {
-        border: none;
-        background: transparent;
+        background: #000000;
+        border: solid $geoff-border;
+        color: #000000;
+    }
+
+    TaskSourceWidget Checkbox:hover > .toggle--button {
+        background: #000000;
+        border: solid $geoff-border;
+        color: #000000;
     }
 
     TaskSourceWidget Checkbox > .toggle--button {
-        color: $geoff-text-muted;
-        background: transparent;
-        border: none;
+        color: #000000;
+        background: #000000;
+        border: solid $geoff-border;
+        width: 1;
+        height: 1;
     }
 
     TaskSourceWidget Checkbox.-on > .toggle--button {
         color: $geoff-success;
-        background: transparent;
-        border: none;
+        background: #000000;
+        border: solid $geoff-success;
     }
 
     TaskSourceWidget Checkbox:focus.-on > .toggle--button {
         color: $geoff-success;
-        background: transparent;
-        border: none;
+        background: #000000;
+        border: solid $geoff-success;
     }
 
     TaskSourceWidget .section-subtitle {

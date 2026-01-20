@@ -109,18 +109,30 @@ class StudyDocsWidget(Static):
         color: $geoff-primary;
     }
 
-    StudyDocsWidget #breadcrumbs-input-row Checkbox:focus {
-        background: transparent;
+    StudyDocsWidget #breadcrumbs-input-row Checkbox:focus > .toggle--button {
+        background: #000000;
+        border: solid $geoff-border;
+        color: #000000;
+    }
+
+    StudyDocsWidget #breadcrumbs-input-row Checkbox:hover > .toggle--button {
+        background: #000000;
+        border: solid $geoff-border;
+        color: #000000;
     }
 
     StudyDocsWidget #breadcrumbs-input-row Checkbox > .toggle--button {
-        color: $geoff-text-muted;
-        background: transparent;
+        color: #000000;
+        background: #000000;
+        border: solid $geoff-border;
+        width: 1;
+        height: 1;
     }
 
     StudyDocsWidget #breadcrumbs-input-row Checkbox.-on > .toggle--button {
         color: $geoff-success;
-        background: transparent;
+        background: #000000;
+        border: solid $geoff-success;
     }
 
     StudyDocsWidget #breadcrumbs-input {
