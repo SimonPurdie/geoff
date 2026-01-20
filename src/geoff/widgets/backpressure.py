@@ -8,17 +8,46 @@ from geoff.config import PromptConfig
 
 class BackpressureWidget(Static):
     DEFAULT_CSS = """
+    $geoff-primary: #3b82f6;
+    $geoff-secondary: #64748b;
+    $geoff-accent: #8b5cf6;
+    $geoff-success: #22c55e;
+    $geoff-warning: #f59e0b;
+    $geoff-error: #ef4444;
+    $geoff-panel-bg: #1e293b;
+    $geoff-border: #475569;
+    $geoff-text: #f1f5f9;
+    $geoff-text-muted: #94a3b8;
+
     BackpressureWidget {
         layout: vertical;
         height: auto;
-        border: solid $primary;
+        border: solid $geoff-border;
         padding: 1;
         margin-bottom: 1;
+        background: $geoff-panel-bg;
     }
 
     BackpressureWidget .section-title {
+        color: $geoff-primary;
         text-style: bold;
         margin-bottom: 1;
+    }
+
+    BackpressureWidget Checkbox {
+        color: $geoff-text;
+    }
+
+    BackpressureWidget Checkbox:hover {
+        color: $geoff-primary;
+    }
+
+    BackpressureWidget Checkbox Box {
+        border: solid $geoff-border;
+    }
+
+    BackpressureWidget Checkbox:focus {
+        background: $geoff-border;
     }
     """
 

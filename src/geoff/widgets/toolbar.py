@@ -6,22 +6,74 @@ from textual import on
 
 class ToolbarWidget(Static):
     DEFAULT_CSS = """
+    $geoff-primary: #3b82f6;
+    $geoff-secondary: #64748b;
+    $geoff-accent: #8b5cf6;
+    $geoff-success: #22c55e;
+    $geoff-warning: #f59e0b;
+    $geoff-error: #ef4444;
+    $geoff-panel-bg: #1e293b;
+    $geoff-border: #475569;
+    $geoff-text: #f1f5f9;
+    $geoff-text-muted: #94a3b8;
+
     ToolbarWidget {
         layout: horizontal;
         height: auto;
         padding: 1;
         align: center middle;
-        background: $surface;
-        border-top: solid $primary;
+        background: $geoff-panel-bg;
+        border-top: solid $geoff-border;
     }
 
     ToolbarWidget Button {
         margin-right: 1;
+        min-width: 16;
     }
-    
-    #btn-quit {
-        background: $error;
-        color: $text;
+
+    ToolbarWidget #btn-copy {
+        background: $geoff-secondary;
+        color: $geoff-text;
+    }
+
+    ToolbarWidget #btn-copy:hover {
+        background: #475569;
+    }
+
+    ToolbarWidget #btn-run-once {
+        background: $geoff-success;
+        color: $geoff-text;
+    }
+
+    ToolbarWidget #btn-run-once:hover {
+        background: #16a34a;
+    }
+
+    ToolbarWidget #btn-run-loop {
+        background: $geoff-accent;
+        color: $geoff-text;
+    }
+
+    ToolbarWidget #btn-run-loop:hover {
+        background: #7c3aed;
+    }
+
+    ToolbarWidget #btn-reset {
+        background: $geoff-warning;
+        color: $geoff-text;
+    }
+
+    ToolbarWidget #btn-reset:hover {
+        background: #d97706;
+    }
+
+    ToolbarWidget #btn-quit {
+        background: $geoff-error;
+        color: $geoff-text;
+    }
+
+    ToolbarWidget #btn-quit:hover {
+        background: #dc2626;
     }
     """
 

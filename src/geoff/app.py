@@ -19,38 +19,66 @@ from geoff.widgets.error_modal import ErrorModal
 
 class GeoffApp(App):
     CSS = """
-    $geoff-primary: $primary;
-    $geoff-secondary: $secondary;
+    $geoff-primary: #3b82f6;
+    $geoff-secondary: #64748b;
+    $geoff-accent: #8b5cf6;
+    $geoff-success: #22c55e;
+    $geoff-warning: #f59e0b;
+    $geoff-error: #ef4444;
+    $geoff-panel-bg: #1e293b;
+    $geoff-border: #475569;
+    $geoff-text: #f1f5f9;
+    $geoff-text-muted: #94a3b8;
 
     Screen {
         layout: grid;
         grid-size: 1 3;
-        grid-rows: 1 1fr 15; 
+        grid-rows: 1 1fr 15;
+        background: #0f172a;
     }
-    
+
     #main-body {
         layout: horizontal;
         height: 100%;
-        background: $surface;
+        background: $geoff-panel-bg;
     }
-    
+
     #left-panel {
         width: 60;
         height: 100%;
-        border-right: solid $primary;
-        background: $surface;
+        border-right: solid $geoff-border;
+        background: $geoff-panel-bg;
         padding: 1;
     }
-    
+
     #right-spacer {
         width: 1fr;
         height: 100%;
     }
-    
+
     #bottom-panel {
-        border-top: solid $primary;
+        border-top: solid $geoff-border;
         height: 100%;
-        background: $surface-darken-1;
+        background: #0f172a;
+    }
+
+    .section-title {
+        color: $geoff-primary;
+        text-style: bold;
+        margin-bottom: 1;
+    }
+
+    .widget-panel {
+        border: solid $geoff-border;
+        padding: 1;
+        margin-bottom: 1;
+        background: $geoff-panel-bg;
+    }
+
+    .section-divider {
+        height: 1;
+        margin: 1 0;
+        background: $geoff-border;
     }
     """
 

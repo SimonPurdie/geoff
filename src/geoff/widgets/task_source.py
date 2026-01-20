@@ -9,15 +9,28 @@ from geoff.config import PromptConfig
 
 class TaskSourceWidget(Static):
     DEFAULT_CSS = """
+    $geoff-primary: #3b82f6;
+    $geoff-secondary: #64748b;
+    $geoff-accent: #8b5cf6;
+    $geoff-success: #22c55e;
+    $geoff-warning: #f59e0b;
+    $geoff-error: #ef4444;
+    $geoff-panel-bg: #1e293b;
+    $geoff-border: #475569;
+    $geoff-text: #f1f5f9;
+    $geoff-text-muted: #94a3b8;
+
     TaskSourceWidget {
         layout: vertical;
         height: auto;
-        border: solid $primary;
+        border: solid $geoff-border;
         padding: 1;
         margin-bottom: 1;
+        background: $geoff-panel-bg;
     }
 
     TaskSourceWidget .section-title {
+        color: $geoff-primary;
         text-style: bold;
         margin-bottom: 1;
     }
@@ -26,10 +39,42 @@ class TaskSourceWidget(Static):
         layout: vertical;
         margin-bottom: 1;
     }
-    
+
+    TaskSourceWidget RadioButton {
+        color: $geoff-text;
+    }
+
+    TaskSourceWidget RadioButton:hover {
+        color: $geoff-primary;
+    }
+
+    TaskSourceWidget RadioButton:focus {
+        background: $geoff-border;
+    }
+
     TaskSourceWidget TextArea {
         height: 8;
-        border: solid $secondary;
+        border: solid $geoff-border;
+        background: #0f172a;
+    }
+
+    TaskSourceWidget TextArea:focus {
+        border: solid $geoff-primary;
+    }
+
+    TaskSourceWidget Input {
+        background: #0f172a;
+        border: solid $geoff-border;
+        padding: 0 1;
+    }
+
+    TaskSourceWidget Input:focus {
+        border: solid $geoff-primary;
+    }
+
+    TaskSourceWidget Label {
+        color: $geoff-text-muted;
+        margin-bottom: 0;
     }
     """
 

@@ -10,15 +10,28 @@ from geoff.config import PromptConfig
 
 class LoopConfigWidget(Static):
     DEFAULT_CSS = """
+    $geoff-primary: #3b82f6;
+    $geoff-secondary: #64748b;
+    $geoff-accent: #8b5cf6;
+    $geoff-success: #22c55e;
+    $geoff-warning: #f59e0b;
+    $geoff-error: #ef4444;
+    $geoff-panel-bg: #1e293b;
+    $geoff-border: #475569;
+    $geoff-text: #f1f5f9;
+    $geoff-text-muted: #94a3b8;
+
     LoopConfigWidget {
         layout: vertical;
         height: auto;
-        border: solid $primary;
+        border: solid $geoff-border;
         padding: 1;
         margin-bottom: 1;
+        background: $geoff-panel-bg;
     }
 
     LoopConfigWidget .section-title {
+        color: $geoff-primary;
         text-style: bold;
         margin-bottom: 1;
     }
@@ -30,21 +43,29 @@ class LoopConfigWidget(Static):
     }
 
     LoopConfigWidget Label {
+        color: $geoff-text-muted;
         margin-right: 1;
         min-width: 15;
     }
 
     LoopConfigWidget Input {
         width: 10;
+        background: #0f172a;
+        border: solid $geoff-border;
+        padding: 0 1;
+    }
+
+    LoopConfigWidget Input:focus {
+        border: solid $geoff-primary;
     }
 
     #infinity-indicator {
         margin-left: 1;
-        color: $accent;
+        color: $geoff-accent;
         text-style: bold;
         width: 3;
     }
-    
+
     .hidden {
         display: none;
     }

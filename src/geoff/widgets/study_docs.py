@@ -20,15 +20,28 @@ class DocRow(Horizontal):
 
 class StudyDocsWidget(Static):
     DEFAULT_CSS = """
+    $geoff-primary: #3b82f6;
+    $geoff-secondary: #64748b;
+    $geoff-accent: #8b5cf6;
+    $geoff-success: #22c55e;
+    $geoff-warning: #f59e0b;
+    $geoff-error: #ef4444;
+    $geoff-panel-bg: #1e293b;
+    $geoff-border: #475569;
+    $geoff-text: #f1f5f9;
+    $geoff-text-muted: #94a3b8;
+
     StudyDocsWidget {
         layout: vertical;
         height: auto;
-        border: solid $primary;
+        border: solid $geoff-border;
         padding: 1;
         margin-bottom: 1;
+        background: $geoff-panel-bg;
     }
 
     StudyDocsWidget .section-title {
+        color: $geoff-primary;
         text-style: bold;
         margin-bottom: 1;
     }
@@ -42,19 +55,49 @@ class StudyDocsWidget(Static):
 
     StudyDocsWidget .doc-input {
         width: 1fr;
+        background: #0f172a;
+        border: solid $geoff-border;
+        padding: 0 1;
+    }
+
+    StudyDocsWidget .doc-input:focus {
+        border: solid $geoff-primary;
     }
 
     StudyDocsWidget .remove-btn {
         width: 4;
         min-width: 4;
         margin-left: 1;
-        background: $error;
-        color: $text;
+        background: $geoff-error;
+        color: $geoff-text;
     }
-    
+
+    StudyDocsWidget .remove-btn:hover {
+        background: #dc2626;
+    }
+
     StudyDocsWidget #add-doc-btn {
         margin-bottom: 1;
-        background: $secondary;
+        background: $geoff-secondary;
+    }
+
+    StudyDocsWidget #add-doc-btn:hover {
+        background: #475569;
+    }
+
+    StudyDocsWidget Label {
+        color: $geoff-text-muted;
+        margin-bottom: 0;
+    }
+
+    StudyDocsWidget #breadcrumbs-input {
+        background: #0f172a;
+        border: solid $geoff-border;
+        padding: 0 1;
+    }
+
+    StudyDocsWidget #breadcrumbs-input:focus {
+        border: solid $geoff-primary;
     }
     """
 
