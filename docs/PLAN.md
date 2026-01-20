@@ -18,13 +18,9 @@
 - [x] 14. Effective Prompt preview panel
 - [x] 15. Validation system
 - [x] 16. Clipboard integration
-- [x] 20. Reset functionality
-- [x] 21. State persistence on changes
-- [ ] 17. Opencode execution layer
-- [ ] 18. Loop execution harness
+- [x] 17. Opencode execution layer
+- [x] 18. Loop execution harness
 - [ ] 19. Error modal dialogs
-- [ ] 20. Reset functionality
-- [ ] 21. State persistence on changes
 - [ ] 22. Polish and UX refinement
 
 ---
