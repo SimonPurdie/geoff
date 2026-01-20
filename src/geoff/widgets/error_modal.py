@@ -71,7 +71,7 @@ class ErrorModal(ModalScreen[None]):
             yield Label("Error", id="error-title")
             with Vertical(id="error-content"):
                 for error in self.errors:
-                    yield Static(f"- {error}")
+                    yield Static(f"- {error}", markup=False)
             yield Button("OK", id="error-ok-button", variant="error")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:

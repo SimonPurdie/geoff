@@ -29,6 +29,7 @@ class ToolbarWidget(Static):
     ToolbarWidget Button {
         margin-right: 1;
         min-width: 16;
+        height: 3;
     }
 
     ToolbarWidget #btn-copy {

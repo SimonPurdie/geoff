@@ -24,18 +24,17 @@ class BreadcrumbWidget(Static):
         height: auto;
         border: solid $geoff-border;
         padding: 1;
-        margin-bottom: 1;
         background: $geoff-panel-bg;
     }
 
     BreadcrumbWidget .section-title {
         color: $geoff-primary;
         text-style: bold;
-        margin-bottom: 1;
     }
 
     BreadcrumbWidget Checkbox {
         color: $geoff-text;
+        height: 1;
     }
 
     BreadcrumbWidget Checkbox:hover {

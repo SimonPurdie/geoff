@@ -60,8 +60,8 @@ def get_required_widgets() -> List[Dict[str, Any]]:
         {"type": "ToolbarWidget", "id": "actions", "required": True},
         {"type": "PromptPreviewWidget", "id": "bottom-panel", "required": True},
         {"type": "Container", "id": "main-body", "required": True},
-        {"type": "VerticalScroll", "id": "left-panel", "required": True},
-        {"type": "Static", "id": "right-spacer", "required": False},
+        {"type": "Horizontal", "id": "top-row", "required": True},
+        {"type": "Horizontal", "id": "settings-row", "required": True},
     ]
 
 

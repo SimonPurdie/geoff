@@ -45,18 +45,15 @@ class GeoffApp(App):
     #top-row {
         layout: horizontal;
         height: 1fr;
-        min-height: 10;
     }
 
     #settings-row {
         layout: horizontal;
         height: auto;
-        dock: bottom;
     }
 
     #bottom-panel {
-        dock: bottom;
-        height: 15;
+        height: 8;
         border-top: solid $geoff-border;
         background: #0f172a;
     }

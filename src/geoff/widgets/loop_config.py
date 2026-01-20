@@ -27,7 +27,6 @@ class LoopConfigWidget(Static):
         height: auto;
         border: solid $geoff-border;
         padding: 1;
-        margin-bottom: 1;
         background: $geoff-panel-bg;
     }
 
@@ -40,7 +39,6 @@ class LoopConfigWidget(Static):
     LoopConfigWidget .input-row {
         height: auto;
         align-vertical: middle;
-        margin-bottom: 1;
     }
 
     LoopConfigWidget Label {

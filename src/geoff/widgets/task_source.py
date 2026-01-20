@@ -1,5 +1,5 @@
 from textual.app import ComposeResult
-from textual.containers import Vertical
+from textual.containers import Vertical, Horizontal
 from textual.widgets import Static, Label, Input, TextArea, RadioSet, RadioButton
 from textual import on
 
@@ -22,10 +22,9 @@ class TaskSourceWidget(Static):
 
     TaskSourceWidget {
         layout: vertical;
-        height: auto;
+        height: 1fr;
         border: solid $geoff-border;
         padding: 1;
-        margin-bottom: 1;
         background: $geoff-panel-bg;
     }
 
@@ -37,6 +36,7 @@ class TaskSourceWidget(Static):
 
     TaskSourceWidget RadioSet {
         layout: vertical;
+        height: auto;
         margin-bottom: 1;
     }
 
@@ -62,7 +62,17 @@ class TaskSourceWidget(Static):
         border: solid $geoff-primary;
     }
 
+    TaskSourceWidget #tasklist-input-row {
+        height: auto;
+        align-vertical: middle;
+    }
+
+    TaskSourceWidget #tasklist-input-row Label {
+        min-width: 15;
+    }
+
     TaskSourceWidget Input {
+        width: 1fr;
         background: #0f172a;
         border: solid $geoff-border;
         padding: 0 1;
@@ -74,7 +84,6 @@ class TaskSourceWidget(Static):
 
     TaskSourceWidget Label {
         color: $geoff-text-muted;
-        margin-bottom: 0;
     }
     """
 
@@ -100,12 +109,13 @@ class TaskSourceWidget(Static):
             )
 
         # Tasklist input
-        yield Label("Tasklist File:", id="tasklist-label")
-        yield Input(
-            value=self.config.tasklist_file,
-            id="tasklist-input",
-            placeholder="Path to tasklist file",
-        )
+        with Horizontal(id="tasklist-input-row"):
+            yield Label("Tasklist File:", id="tasklist-label")
+            yield Input(
+                value=self.config.tasklist_file,
+                id="tasklist-input",
+                placeholder="Path to tasklist file",
+            )
 
         # One-off prompt input
         yield Label("One-off Prompt:", id="oneoff-label")
@@ -120,7 +130,7 @@ class TaskSourceWidget(Static):
     def update_visibility(self) -> None:
         is_tasklist = self.config.task_mode == "tasklist"
 
-        self.query_one("#tasklist-label").display = is_tasklist
+        self.query_one("#tasklist-input-row").display = is_tasklist
         self.query_one("#tasklist-input").display = is_tasklist
 
         self.query_one("#oneoff-label").display = not is_tasklist

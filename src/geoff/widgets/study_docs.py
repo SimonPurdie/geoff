@@ -33,10 +33,9 @@ class StudyDocsWidget(Static):
 
     StudyDocsWidget {
         layout: vertical;
-        height: auto;
+        height: 1fr;
         border: solid $geoff-border;
         padding: 1;
-        margin-bottom: 1;
         background: $geoff-panel-bg;
     }
 
@@ -49,7 +48,6 @@ class StudyDocsWidget(Static):
     StudyDocsWidget .doc-row {
         layout: horizontal;
         height: auto;
-        margin-bottom: 1;
         align-vertical: middle;
     }
 
@@ -87,10 +85,19 @@ class StudyDocsWidget(Static):
 
     StudyDocsWidget Label {
         color: $geoff-text-muted;
-        margin-bottom: 0;
+    }
+
+    StudyDocsWidget #breadcrumbs-input-row {
+        height: auto;
+        align-vertical: middle;
+    }
+
+    StudyDocsWidget #breadcrumbs-input-row Label {
+        min-width: 15;
     }
 
     StudyDocsWidget #breadcrumbs-input {
+        width: 1fr;
         background: #0f172a;
         border: solid $geoff-border;
         padding: 0 1;
@@ -115,12 +122,13 @@ class StudyDocsWidget(Static):
 
         yield Button("+ Add Doc", id="add-doc-btn", variant="primary")
 
-        yield Label("Breadcrumbs:")
-        yield Input(
-            value=self.config.breadcrumbs_file,
-            id="breadcrumbs-input",
-            placeholder="Path to breadcrumbs file",
-        )
+        with Horizontal(id="breadcrumbs-input-row"):
+            yield Label("Breadcrumbs:")
+            yield Input(
+                value=self.config.breadcrumbs_file,
+                id="breadcrumbs-input",
+                placeholder="Path to breadcrumbs file",
+            )
 
     @on(Button.Pressed, "#add-doc-btn")
     async def add_doc(self):

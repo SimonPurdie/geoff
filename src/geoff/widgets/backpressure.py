@@ -24,18 +24,17 @@ class BackpressureWidget(Static):
         height: auto;
         border: solid $geoff-border;
         padding: 1;
-        margin-bottom: 1;
         background: $geoff-panel-bg;
     }
 
     BackpressureWidget .section-title {
         color: $geoff-primary;
         text-style: bold;
-        margin-bottom: 1;
     }
 
     BackpressureWidget Checkbox {
         color: $geoff-text;
+        height: 1;
     }
 
     BackpressureWidget Checkbox:hover {
