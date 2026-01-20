@@ -1,29 +1,27 @@
 # Breadcrumbs
 
-- **Task 23 (Property-based Tests):** Added `tests/test_prompt_builder_property.py` with 11 Hypothesis-based property tests covering prompt assembly invariants. Key lessons:
-  - Use `st.sampled_from` with specific alphabets instead of raw `st.text()` to avoid generating strings with control characters that get stripped
-  - Property tests revealed that the prompt builder correctly filters empty/whitespace-only inputs
-  - Tests cover: order preservation, mode exclusivity, backpressure content, breadcrumb formatting, no empty lines, and crash resilience
+- **Textual Widget Styling (Task 24):** 
+  - Use `DEFAULT_CSS` (not `CSS`) for Textual widget styling to ensure proper inheritance in test environments.
+  - Define all required CSS variables (`$geoff-primary`, `$geoff-secondary`, etc.) within each widget's `DEFAULT_CSS` block; they cannot be inherited from the App's CSS.
+  - Textual CSS does not support `font-family`, `font-size`, or `line-height` properties.
+  - Use only valid Textual CSS properties: `background`, `color`, `border`, `padding`, `margin`, `text-style`, `layout`, etc.
 
-- **Task 19 (Error Modal Dialogs):** Implemented ErrorModal widget as a ModalScreen that displays validation errors. When testing ModalScreen widgets, I found that they aren't queryable via `app.query_one()` when pushed to the screen stack. Instead, I had to access modals through `app.screen_stack[-1]` to verify their content and state. Also discovered that `Static.render()` returns the content object (not `renderable`), which should be cast to `str` for assertions. The modal's presence can be verified by checking `len(app.screen_stack) > 1`.
+- **Hypothesis Property Testing (Task 23):**
+  - Use `st.sampled_from` with specific alphabets instead of raw `st.text()` to avoid generating strings with control characters that get stripped or altered by TUI components.
 
-- **Task 22 (Executor Implementation):** Implemented Opencode execution layer (Items 17-18) by creating `src/geoff/executor.py` with `execute_opencode_once()` and `execute_opencode_loop()` functions. The loop harness includes change detection using git HEAD hash (with fallback to directory content hashing), stuck iteration detection, and configurable max_iterations and max_stuck parameters. Wrote 22 unit tests in `tests/test_executor.py` covering all executor functionality. Updated `app.py` to use the executor for Run Once and Run Loop actions.
+- **Testing ModalScreens (Task 19):** 
+  - `ModalScreen` widgets are not queryable via `app.query_one()` when pushed to the screen stack. Access them through `app.screen_stack[-1]` to verify their content and state.
+  - Verification of a modal's presence can be done by checking `len(app.screen_stack) > 1`.
 
-- **Task 21 (State Persistence):** Implemented auto-save config in `on_config_updated()` handler. The `_save_config()` method calls `ConfigManager.save_repo_config()` with error handling. Reset functionality removes repo config file and reloads from global defaults. Widget state resets immediately for prompt preview; full UI refresh would require app restart for dynamic widgets like study docs list.
+- **Integration Testing with Default Config (Task 15):** 
+  - The default `PromptConfig` (`study_docs=["docs/SPEC.md"]`, etc.) means validation will fail for missing files even when testing unrelated features. Tests must either create these placeholder files or explicitly use a config that disables those features (e.g., one-off mode with empty lists).
 
-- **Task 20 (Reset Functionality):** Reset clears repo-level `.geoff/geoff.yaml` and reloads config. The prompt preview updates immediately. Note: some widgets like StudyDocsWidget with dynamic doc lists may need app restart to fully reflect defaults in their internal state.
+- **CSS Variable Issues in Tests (Task 8):** 
+  - Difficulties making custom CSS variables (like `$geoff-primary`) work in the test harness (`test_study_docs_widget.py`). Standard `$primary` and `$secondary` were used as a workaround.
 
-- **Task 16 (Clipboard Integration):** Successfully implemented clipboard integration with validation. The `copy_to_clipboard()` function uses `pyperclip.copy()` and returns a boolean indicating success. The Copy Prompt handler validates the config first, builds the prompt, then copies it to clipboard. Validation failures show as error notifications. Textual's `notify()` method uses severity levels `information`, `warning`, and `error` (not `success`).
+- **Testing TextArea vs Input (Task 9, 12):**
+  - Programmatic updates to `TextArea` in tests (`widget.text = "value"`) require manually posting a `TextArea.Changed(widget)` event. `Input` widgets trigger `Changed` events automatically on `widget.value = "value"`.
+  - `TextArea.Changed` event uses `event.text_area` to access the widget, while `Input.Changed` uses `event.input`.
 
-- **Task 15 (Validation System):** When testing with default PromptConfig values, the default `study_docs=["docs/SPEC.md"]`, `task_mode="tasklist"`, and `breadcrumb_enabled=True` mean validation will fail for missing files even if you're only testing a specific feature. Tests should either:
-  1. Create all necessary files in the tmp_path, OR
-  2. Disable features and use one-off mode with empty lists for study_docs to isolate the test case
-  - This is important for future agents writing widget tests that interact with config.
-
-- **Task 8 (Study Docs Panel):** I implemented `StudyDocsWidget` using standard `$primary` and `$secondary` CSS variables instead of `$geoff-primary` and `$geoff-secondary` as requested in the spec, because I ran into difficulties making the custom variables work in the test harness (`test_study_docs_widget.py`). The application logic works correctly. Future agents might want to revisit this to strictly adhere to the spec or fix the test setup.
-
-- **Task 9 (Task Source Panel):** When testing `TextArea` widgets, I found that programmatic updates in tests (`widget.text = "value"`) require manually posting the `TextArea.Changed(widget)` event to trigger handlers. Also, the `TextArea.Changed` event uses `event.text_area` to access the widget, unlike `Input.Changed` which uses `event.input`.
-
-- **Task 12 (Loop Configuration Panel):** Unlike `TextArea`, programmatic updates to `Input` widgets (`widget.value = "value"`) in tests *do* seem to trigger the `Changed` event (or at least the data binding logic worked as expected without manual event posting). Also found that `Static` (and `Label`) widgets in newer Textual versions don't easily expose their content via a `renderable` attribute for inspection; checking visibility or CSS classes is a more robust testing strategy for UI state.
-
-- **Task 14 (Effective Prompt Preview Panel):** Confirmed the difficulty with inspecting `Static` content in tests. However, I found that calling `widget.render()` returns the content object, which can be cast to `str` for assertion purposes in simple cases (like verifying the prompt text).
+- **Inspecting Static Content in Tests (Task 12, 14, 19):**
+  - `Static` and `Label` widgets in newer Textual versions do not easily expose content via a `renderable` attribute. Use `str(widget.render())` to inspect the content object for assertions.
