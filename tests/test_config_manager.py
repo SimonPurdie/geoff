@@ -185,6 +185,26 @@ def test_base_prompt_strings_all_keys_materialized(tmp_path):
         assert loaded[key] == getattr(config, key)
 
 
+def test_save_repo_config_excludes_base_prompt_strings(tmp_path):
+    cm = ConfigManager(working_dir=tmp_path)
+    config = PromptConfig(
+        max_iterations=99,
+        prompt_tasklist_study="custom study",
+        prompt_backpressure_header="custom header",
+    )
+
+    cm.save_repo_config(config)
+
+    repo_path = tmp_path / ".geoff" / "geoff.yaml"
+    assert repo_path.exists()
+
+    loaded = load_yaml(repo_path)
+    assert loaded is not None
+    assert loaded.get("max_iterations") == 99
+    assert "prompt_tasklist_study" not in loaded
+    assert "prompt_backpressure_header" not in loaded
+
+
 def test_base_prompt_strings_preserves_existing_non_base_keys(tmp_path):
     cm = ConfigManager(working_dir=tmp_path)
     global_path = tmp_path / "global.yaml"

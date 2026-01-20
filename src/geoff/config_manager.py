@@ -96,4 +96,6 @@ class ConfigManager:
 
     def save_repo_config(self, config: PromptConfig) -> None:
         data = asdict(config)
+        for key in BASE_PROMPT_STRING_KEYS:
+            data.pop(key, None)
         save_yaml(self.repo_config_path, data)
