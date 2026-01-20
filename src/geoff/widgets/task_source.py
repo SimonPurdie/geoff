@@ -121,13 +121,51 @@ class TaskSourceWidget(Static):
     }
 
     TaskSourceWidget Checkbox {
+        width: auto;
         height: 1;
-        color: $geoff-text;
+        border: none;
+        background: transparent;
+        color: $geoff-text-muted;
         margin-top: 1;
     }
 
     TaskSourceWidget Checkbox:hover {
         color: $geoff-primary;
+    }
+
+    TaskSourceWidget Checkbox:focus {
+        border: none;
+        background: transparent;
+    }
+
+    TaskSourceWidget Checkbox:focus > .toggle--button {
+        border: none;
+        background: transparent;
+    }
+
+    TaskSourceWidget Checkbox > .toggle--button {
+        color: $geoff-text-muted;
+        background: transparent;
+        border: none;
+    }
+
+    TaskSourceWidget Checkbox.-on > .toggle--button {
+        color: $geoff-success;
+        background: transparent;
+        border: none;
+    }
+
+    TaskSourceWidget Checkbox:focus.-on > .toggle--button {
+        color: $geoff-success;
+        background: transparent;
+        border: none;
+    }
+
+    TaskSourceWidget .section-subtitle {
+        color: $geoff-text-muted;
+        text-style: bold;
+        margin-top: 1;
+        margin-bottom: 0;
     }
     """
 
@@ -165,9 +203,9 @@ class TaskSourceWidget(Static):
             self.config.oneoff_prompt, id="oneoff-input", show_line_numbers=False
         )
 
-        # Backpressure
+        yield Label("Backpressure", classes="section-subtitle")
+
         yield Checkbox(
-            "Enforce tests & commit",
             value=self.config.backpressure_enabled,
             id="backpressure-checkbox",
         )

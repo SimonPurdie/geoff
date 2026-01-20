@@ -98,13 +98,29 @@ class StudyDocsWidget(Static):
     }
 
     StudyDocsWidget #breadcrumbs-input-row Checkbox {
-        min-width: 15;
+        width: auto;
         height: 1;
+        border: none;
+        background: transparent;
         color: $geoff-text-muted;
     }
-    
+
     StudyDocsWidget #breadcrumbs-input-row Checkbox:hover {
         color: $geoff-primary;
+    }
+
+    StudyDocsWidget #breadcrumbs-input-row Checkbox:focus {
+        background: transparent;
+    }
+
+    StudyDocsWidget #breadcrumbs-input-row Checkbox > .toggle--button {
+        color: $geoff-text-muted;
+        background: transparent;
+    }
+
+    StudyDocsWidget #breadcrumbs-input-row Checkbox.-on > .toggle--button {
+        color: $geoff-success;
+        background: transparent;
     }
 
     StudyDocsWidget #breadcrumbs-input {
@@ -132,7 +148,6 @@ class StudyDocsWidget(Static):
 
         with Horizontal(id="breadcrumbs-input-row"):
             yield Checkbox(
-                "Breadcrumbs",
                 value=self.config.breadcrumb_enabled,
                 id="breadcrumbs-checkbox",
             )
