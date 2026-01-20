@@ -1,12 +1,14 @@
+from textual import on
 from textual.app import App, ComposeResult
-from textual.containers import Container, VerticalScroll
-from textual.widgets import Header, Static, Placeholder
+from textual.containers import Container, Horizontal
+from textual.widgets import Header, Static
 
 from geoff.config_manager import ConfigManager
 from geoff.prompt_builder import build_prompt
 from geoff.validator import PromptValidator
 from geoff.clipboard import copy_to_clipboard
 from geoff.executor import execute_opencode_once, execute_opencode_loop
+from geoff.messages import ConfigUpdated
 from geoff.widgets.study_docs import StudyDocsWidget
 from geoff.widgets.task_source import TaskSourceWidget
 from geoff.widgets.backpressure import BackpressureWidget
@@ -36,22 +38,21 @@ class GeoffApp(App):
     }
 
     #main-body {
+        layout: vertical;
+        height: 1fr;
+        background: #0f172a;
+    }
+
+    #top-row {
         layout: horizontal;
         height: 1fr;
-        background: $geoff-panel-bg;
+        min-height: 10;
     }
 
-    #left-panel {
-        width: 60;
-        height: 100%;
-        border-right: solid $geoff-border;
-        background: $geoff-panel-bg;
-        padding: 1;
-    }
-
-    #right-spacer {
-        width: 1fr;
-        height: 100%;
+    #settings-row {
+        layout: horizontal;
+        height: auto;
+        dock: bottom;
     }
 
     #bottom-panel {
@@ -59,6 +60,10 @@ class GeoffApp(App):
         height: 15;
         border-top: solid $geoff-border;
         background: #0f172a;
+    }
+
+    #actions {
+        height: auto;
     }
 
     .section-title {
@@ -70,14 +75,32 @@ class GeoffApp(App):
     .widget-panel {
         border: solid $geoff-border;
         padding: 1;
-        margin-bottom: 1;
         background: $geoff-panel-bg;
     }
 
-    .section-divider {
-        height: 1;
-        margin: 1 0;
-        background: $geoff-border;
+    #study-docs {
+        width: 1fr;
+        height: 1fr;
+    }
+
+    #task-source {
+        width: 1fr;
+        height: 1fr;
+    }
+
+    #backpressure {
+        width: 1fr;
+        height: auto;
+    }
+
+    #breadcrumb {
+        width: 1fr;
+        height: auto;
+    }
+
+    #loop-config {
+        width: 1fr;
+        height: auto;
     }
     """
 
@@ -91,22 +114,24 @@ class GeoffApp(App):
         yield Header(show_clock=True)
 
         with Container(id="main-body"):
-            with VerticalScroll(id="left-panel"):
+            with Horizontal(id="top-row"):
                 yield StudyDocsWidget(self.prompt_config, id="study-docs")
                 yield TaskSourceWidget(self.prompt_config, id="task-source")
+
+            with Horizontal(id="settings-row"):
                 yield BackpressureWidget(self.prompt_config, id="backpressure")
                 yield BreadcrumbWidget(self.prompt_config, id="breadcrumb")
                 yield LoopConfigWidget(self.prompt_config, id="loop-config")
-                yield ToolbarWidget(id="actions")
 
-            yield Static(" ", id="right-spacer")
+            yield ToolbarWidget(id="actions")
 
         yield PromptPreviewWidget(self.prompt_config, id="bottom-panel")
 
     def on_mount(self) -> None:
         self.title = "GEOFF - Prompt Constructor"
 
-    def on_config_updated(self) -> None:
+    @on(ConfigUpdated)
+    def handle_config_updated(self) -> None:
         """Handle config updates from child widgets."""
         self.query_one(PromptPreviewWidget).update_prompt()
         self._save_config()
@@ -154,17 +179,25 @@ class GeoffApp(App):
             max_stuck=self.prompt_config.max_stuck,
         )
 
-    def on_toolbar_widget_reset(self, message: ToolbarWidget.Reset) -> None:
-        self._reset_to_defaults()
+    async def on_toolbar_widget_reset(self, message: ToolbarWidget.Reset) -> None:
+        await self._reset_to_defaults()
 
-    def _reset_to_defaults(self) -> None:
+    async def _reset_to_defaults(self) -> None:
         """Reset all fields to global config defaults."""
         repo_config_path = self.config_manager.repo_config_path
         if repo_config_path.exists():
             repo_config_path.unlink()
 
         self.prompt_config = self.config_manager.resolve_config()
-        self.query_one(PromptPreviewWidget).update_prompt()
+
+        # Update all widgets
+        await self.query_one(StudyDocsWidget).update_from_config(self.prompt_config)
+        self.query_one(TaskSourceWidget).update_from_config(self.prompt_config)
+        self.query_one(BackpressureWidget).update_from_config(self.prompt_config)
+        self.query_one(BreadcrumbWidget).update_from_config(self.prompt_config)
+        self.query_one(LoopConfigWidget).update_from_config(self.prompt_config)
+
+        self.query_one(PromptPreviewWidget).update_prompt(self.prompt_config)
         self.notify("Reset to defaults", severity="information")
 
     def on_toolbar_widget_quit(self, message: ToolbarWidget.Quit) -> None:
