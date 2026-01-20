@@ -6,6 +6,7 @@ from geoff.config_manager import ConfigManager
 from geoff.prompt_builder import build_prompt
 from geoff.validator import PromptValidator
 from geoff.clipboard import copy_to_clipboard
+from geoff.executor import execute_opencode_once, execute_opencode_loop
 from geoff.widgets.study_docs import StudyDocsWidget
 from geoff.widgets.task_source import TaskSourceWidget
 from geoff.widgets.backpressure import BackpressureWidget
@@ -102,10 +103,28 @@ class GeoffApp(App):
             self.notify("Failed to copy to clipboard", severity="error")
 
     def on_toolbar_widget_run_once(self, message: ToolbarWidget.RunOnce) -> None:
-        self.notify("Run Once not implemented yet")
+        errors = self.validator.validate(self.prompt_config)
+        if errors:
+            self.notify(f"Validation failed: {'; '.join(errors)}", severity="error")
+            return
+
+        prompt = build_prompt(self.prompt_config)
+        self.exit()
+        execute_opencode_once(prompt)
 
     def on_toolbar_widget_run_loop(self, message: ToolbarWidget.RunLoop) -> None:
-        self.notify("Run Loop not implemented yet")
+        errors = self.validator.validate(self.prompt_config)
+        if errors:
+            self.notify(f"Validation failed: {'; '.join(errors)}", severity="error")
+            return
+
+        prompt = build_prompt(self.prompt_config)
+        self.exit()
+        execute_opencode_loop(
+            prompt,
+            max_iterations=self.prompt_config.max_iterations,
+            max_stuck=self.prompt_config.max_stuck,
+        )
 
     def on_toolbar_widget_reset(self, message: ToolbarWidget.Reset) -> None:
         self._reset_to_defaults()
