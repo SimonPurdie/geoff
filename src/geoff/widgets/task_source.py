@@ -53,7 +53,7 @@ class TaskSourceWidget(Static):
     }
 
     TaskSourceWidget TextArea {
-        height: 8;
+        height: 1fr;
         border: solid $geoff-border;
         background: #0f172a;
     }

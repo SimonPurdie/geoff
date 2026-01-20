@@ -1,5 +1,9 @@
 # TUI Refactoring Plan
 
+**IMPORTANT - AGENTS**
+- STOP writing endless property tests. Property tests are for SPECIFIC CASES where general behavior can't be fully enumerated. Stop writing them for cases where unit tests are more appropriate.
+- START actually implementing the desired features instead of just writing tests for them.
+
 ## 1. Problem Statement
 The current TUI layout is inefficient:
 - **Wasted Space:** A large empty area exists on the right side of the screen.
@@ -193,3 +197,9 @@ The application will transition from a `Horizontal` split (Left Panel + Right Sp
   - `test_error_modal_property_dismiss_behavior`: Tests dismiss behavior on OK button click
   - `test_error_modal_property_ok_button_exists`: Tests OK button exists and has correct label
 
+### Task 8: TaskSourceWidget TextArea Height Fix - COMPLETED
+- **Date:** 2026-01-20
+- **Changes:**
+  - Fixed TaskSourceWidget TextArea height from `height: 8` to `height: 1fr` to match the refactoring plan requirements
+  - This allows the one-off prompt TextArea to consume available vertical space in the column
+- **Tests:** All 171 tests pass
