@@ -14,6 +14,7 @@ from geoff.widgets.breadcrumb import BreadcrumbWidget
 from geoff.widgets.loop_config import LoopConfigWidget
 from geoff.widgets.toolbar import ToolbarWidget
 from geoff.widgets.prompt_preview import PromptPreviewWidget
+from geoff.widgets.error_modal import ErrorModal
 
 
 class GeoffApp(App):
@@ -93,7 +94,7 @@ class GeoffApp(App):
     def on_toolbar_widget_copy_prompt(self, message: ToolbarWidget.CopyPrompt) -> None:
         errors = self.validator.validate(self.prompt_config)
         if errors:
-            self.notify(f"Validation failed: {'; '.join(errors)}", severity="error")
+            self.push_screen(ErrorModal(errors))
             return
 
         prompt = build_prompt(self.prompt_config)
@@ -105,7 +106,7 @@ class GeoffApp(App):
     def on_toolbar_widget_run_once(self, message: ToolbarWidget.RunOnce) -> None:
         errors = self.validator.validate(self.prompt_config)
         if errors:
-            self.notify(f"Validation failed: {'; '.join(errors)}", severity="error")
+            self.push_screen(ErrorModal(errors))
             return
 
         prompt = build_prompt(self.prompt_config)
@@ -115,7 +116,7 @@ class GeoffApp(App):
     def on_toolbar_widget_run_loop(self, message: ToolbarWidget.RunLoop) -> None:
         errors = self.validator.validate(self.prompt_config)
         if errors:
-            self.notify(f"Validation failed: {'; '.join(errors)}", severity="error")
+            self.push_screen(ErrorModal(errors))
             return
 
         prompt = build_prompt(self.prompt_config)

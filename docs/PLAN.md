@@ -20,7 +20,7 @@
 - [x] 16. Clipboard integration
 - [x] 17. Opencode execution layer
 - [x] 18. Loop execution harness
-- [ ] 19. Error modal dialogs
+- [x] 19. Error modal dialogs
 - [ ] 22. Polish and UX refinement
 
 ---
