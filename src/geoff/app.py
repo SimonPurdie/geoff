@@ -31,15 +31,13 @@ class GeoffApp(App):
     $geoff-text-muted: #94a3b8;
 
     Screen {
-        layout: grid;
-        grid-size: 1 3;
-        grid-rows: 1 1fr 15;
+        layout: vertical;
         background: #0f172a;
     }
 
     #main-body {
         layout: horizontal;
-        height: 100%;
+        height: 1fr;
         background: $geoff-panel-bg;
     }
 
@@ -57,8 +55,9 @@ class GeoffApp(App):
     }
 
     #bottom-panel {
+        dock: bottom;
+        height: 15;
         border-top: solid $geoff-border;
-        height: 100%;
         background: #0f172a;
     }
 
