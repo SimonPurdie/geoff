@@ -1,8 +1,17 @@
 import pytest
+from hypothesis import given, settings, strategies as st
 from textual.app import App, ComposeResult
 from textual.widgets import Input
+from textual.containers import Vertical
 from geoff.config import PromptConfig
 from geoff.widgets.study_docs import StudyDocsWidget, DocRow
+
+
+def filepath_strategy(min_size=1, max_size=50):
+    alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-./"
+    return st.text(
+        min_size=min_size, max_size=max_size, alphabet=st.sampled_from(list(alphabet))
+    )
 
 
 class StudyDocsApp(App):
@@ -19,6 +28,103 @@ class StudyDocsApp(App):
         yield StudyDocsWidget(self.config_obj)
 
 
+@given(
+    study_docs=st.lists(filepath_strategy(), max_size=5),
+    breadcrumbs_file=filepath_strategy(),
+)
+@settings(max_examples=30)
+@pytest.mark.asyncio
+async def test_study_docs_initial_state(study_docs, breadcrumbs_file):
+    config = PromptConfig(study_docs=study_docs, breadcrumbs_file=breadcrumbs_file)
+    app = StudyDocsApp(config)
+
+    async with app.run_test() as pilot:
+        widget = app.query_one(StudyDocsWidget)
+
+        assert len(widget.query(DocRow)) == len(study_docs)
+
+        for i, expected_doc in enumerate(study_docs):
+            input_widget = widget.query_one(f"#doc-input-{i}", Input)
+            assert input_widget.value == expected_doc
+
+        bc_input = widget.query_one("#breadcrumbs-input", Input)
+        assert bc_input.value == breadcrumbs_file
+
+
+@given(
+    initial_docs=st.lists(filepath_strategy(), max_size=3),
+    new_docs=st.lists(filepath_strategy(), max_size=3),
+)
+@settings(max_examples=20)
+@pytest.mark.asyncio
+async def test_study_docs_update_from_config(initial_docs, new_docs):
+    config = PromptConfig(study_docs=initial_docs)
+    app = StudyDocsApp(config)
+
+    async with app.run_test() as pilot:
+        widget = app.query_one(StudyDocsWidget)
+
+        new_config = PromptConfig(study_docs=new_docs)
+        await widget.update_from_config(new_config)
+
+        assert len(widget.query(DocRow)) == len(new_docs)
+
+        for i, expected_doc in enumerate(new_docs):
+            input_widget = widget.query_one(f"#doc-input-{i}", Input)
+            assert input_widget.value == expected_doc
+
+
+@given(
+    initial_breadcrumbs=filepath_strategy(),
+    new_breadcrumbs=filepath_strategy(),
+)
+@settings(max_examples=20)
+@pytest.mark.asyncio
+async def test_study_docs_breadcrumbs_update(initial_breadcrumbs, new_breadcrumbs):
+    config = PromptConfig(breadcrumbs_file=initial_breadcrumbs)
+    app = StudyDocsApp(config)
+
+    async with app.run_test() as pilot:
+        widget = app.query_one(StudyDocsWidget)
+
+        new_config = PromptConfig(breadcrumbs_file=new_breadcrumbs)
+        await widget.update_from_config(new_config)
+
+        bc_input = widget.query_one("#breadcrumbs-input", Input)
+        assert bc_input.value == new_breadcrumbs
+
+
+@given(
+    study_docs=st.lists(filepath_strategy(), max_size=3),
+)
+@settings(max_examples=15, deadline=None)
+@pytest.mark.asyncio
+async def test_study_docs_add_remove_property(study_docs):
+    config = PromptConfig(study_docs=list(study_docs))
+    app = StudyDocsApp(config)
+
+    async with app.run_test() as pilot:
+        widget = app.query_one(StudyDocsWidget)
+        initial_count = len(widget.query(DocRow))
+
+        await pilot.click("#add-doc-btn")
+        await pilot.pause()
+
+        new_count = len(widget.query(DocRow))
+        assert new_count == initial_count + 1
+        expected_docs = len(study_docs) + 1
+        assert len(config.study_docs) == expected_docs, (
+            f"Expected {expected_docs} docs, got {config.study_docs}"
+        )
+
+        if new_count > 0:
+            await pilot.click("#remove-doc-0")
+            await pilot.pause()
+
+            final_count = len(widget.query(DocRow))
+            assert final_count == initial_count
+
+
 @pytest.mark.asyncio
 async def test_study_docs_add_remove():
     config = PromptConfig(study_docs=["doc1.md"])
@@ -29,7 +135,7 @@ async def test_study_docs_add_remove():
 
         # Check initial state
         assert len(widget.query(DocRow)) == 1
-        assert widget.query_one("Input.doc-input").value == "doc1.md"
+        assert widget.query_one("#doc-input-0", Input).value == "doc1.md"
 
         # Add a doc
         await pilot.click("#add-doc-btn")

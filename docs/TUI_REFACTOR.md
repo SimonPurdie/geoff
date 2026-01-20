@@ -105,3 +105,28 @@ The application will transition from a `Horizontal` split (Left Panel + Right Sp
   - Added property-based tests for new layout structure (`tests/test_app_layout.py`)
   - Updated CSS for new container hierarchy and widget sizing
 - **Tests:** All 121 tests pass
+
+### Task 2: Property-Based Tests for LoopConfigWidget - COMPLETED
+- **Date:** 2026-01-20
+- **Changes:**
+  - Added 5 new Hypothesis property-based tests for LoopConfigWidget
+  - Tests cover: initial value rendering, infinity indicator behavior, config updates for max_iterations and max_stuck, and update_from_config method
+  - All 126 tests pass (5 new tests added to existing 121)
+- **Tests:**
+  - `test_loop_config_property_initial_values`: Tests widget initialization with various max_iterations (0-1000) and max_stuck (0-100) values
+  - `test_infinity_indicator_property`: Tests infinity indicator visibility (shown when max_iterations=0, hidden otherwise)
+  - `test_loop_config_updates_property`: Tests config updates propagate correctly for max_iterations
+  - `test_max_stuck_updates_property`: Tests config updates propagate correctly for max_stuck
+  - `test_update_from_config_property`: Tests update_from_config method with various config values
+
+### Task 3: Property-Based Tests for Widgets - COMPLETED
+- **Date:** 2026-01-20
+- **Changes:**
+  - Added property-based tests for BackpressureWidget, BreadcrumbWidget, StudyDocsWidget, and TaskSourceWidget
+  - Tests cover initial state rendering, toggle behavior, config updates, and update_from_config method
+  - All 141 tests pass (15 new tests added to existing 126)
+- **Tests:**
+  - BackpressureWidget: `test_backpressure_initial_state`, `test_backpressure_toggle_property`, `test_backpressure_update_from_config`
+  - BreadcrumbWidget: `test_breadcrumb_initial_state`, `test_breadcrumb_toggle_property`, `test_breadcrumb_update_from_config`
+  - StudyDocsWidget: `test_study_docs_initial_state`, `test_study_docs_update_from_config`, `test_study_docs_breadcrumbs_update`, `test_study_docs_add_remove_property`
+  - TaskSourceWidget: `test_task_source_initial_state`, `test_task_source_mode_switch_property`, `test_task_source_tasklist_update`, `test_task_source_oneoff_update`, `test_task_source_update_mode`
