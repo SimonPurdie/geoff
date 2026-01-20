@@ -82,7 +82,7 @@ class GeoffApp(App):
         yield PromptPreviewWidget(self.prompt_config, id="bottom-panel")
 
     def on_mount(self) -> None:
-        self.title = "GEOFF - Prompt Constructor"
+        self.title = "geoff"
         self.theme = self.prompt_config.theme
         self.watch(self, "theme", self._update_theme_config, init=False)
 

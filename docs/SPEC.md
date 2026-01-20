@@ -27,7 +27,7 @@ Personal productivity tool for composing, persisting, and executing coding-agent
    * **Tasklist-driven:**
 
      ```
-     study <tasklist> and pick the most important thing to do.
+     follow <tasklist> and choose the most important item to address. Complete that item and no other.
      ```
      
      * Default: `docs/PLAN.md`
@@ -45,7 +45,8 @@ Personal productivity tool for composing, persisting, and executing coding-agent
 
    ```
    IMPORTANT:
-   - author property based tests or unit tests (whichever is best)
+   - After implementing functionality or resolving problems, run the tests for that unit of code that was improved.
+   - If functionality is missing then it's your job to add it as per the application specifications.
    - after performing your task run the tests
    - when tests pass, commit to deploy changes
    ```
@@ -56,7 +57,8 @@ Personal productivity tool for composing, persisting, and executing coding-agent
 4. **Breadcrumb**
 
    ```
-   if you ran into difficulties due to a lack of information about the project or environment, which you then resolved, leave a note about it in <breadcrumbs> to help future agents.
+   if you ran into difficulties due to a lack of information about the project or environment, which you then resolved, leave a note about it in <breadcrumbs> to help future agents. For example, if you run commands multiple times before learning the correct command.
+   IMPORTANT: keep <breadcrumbs> operational only - status updates and progress notes do not belong there.
    ```
 
    * Enabled by default; toggle via checkbox.
@@ -69,7 +71,7 @@ Personal productivity tool for composing, persisting, and executing coding-agent
 5. **Task Update**
 
    ```
-   update <tasklist> when the task is done
+   Update <tasklist> when the task is done. If you discover issues, immediately update <tasklist> with your findings. When resolved, update <tasklist> and remove the item.
    ```
 
    * Automatically linked to tasklist mode; appears/disappears with mode selection.
@@ -79,7 +81,7 @@ Personal productivity tool for composing, persisting, and executing coding-agent
 **Ordering:** Orientation → Task Source → Backpressure → Breadcrumb → Task Update (implicit)
 
 **Prompt Assembly Rules:**
-- Tasklist mode: includes "study <tasklist> and pick the most important thing to do", "update <tasklist> when the task is done" (at end)
+- Tasklist mode: includes "follow <tasklist> and choose the most important item to address. Complete that item and no other.", "Update <tasklist> when the task is done. If you discover issues, immediately update <tasklist> with your findings. When resolved, update <tasklist> and remove the item." (at end)
 - One-off mode: suppresses both tasklist-related lines; shows user's one-off prompt text in place of task instruction
 - Backpressure enabled: includes full IMPORTANT block with test and commit requirements
 - Backpressure disabled: omits entire IMPORTANT block
@@ -124,44 +126,50 @@ Personal productivity tool for composing, persisting, and executing coding-agent
 ## 3. Mouse-First TUI Layout
 
 ```
-+-------------------------------------------------------------+
-| GEOFF - Prompt Constructor                                  |
-+----------------------+--------------------------------------+
-| Orientation / Study Docs                                    |
-|-------------------------------------------------------------|
++------------------------------------------------------------+
+| GEOFF - Prompt Constructor                                 |
++----------------------+-------------------------------------+
+| Orientation / Study Docs                                   |
+|------------------------------------------------------------|
 | Docs: [docs/SPEC.md] [+ Add Doc]                           |
 | Breadcrumbs: [docs/BREADCRUMBS.md]                         |
-+----------------------+
-| Task Source (mutually exclusive, required)                  |
++------------------------------------------------------------+
+| Task Source (mutually exclusive, required)                 |
 |  (•) Tasklist Mode: [docs/PLAN.md]                         |
 |  ( ) One-off Prompt: [                                     |
 |                       text area for prompt entry           |
 |                      ]                                     |
-+----------------------+
++------------------------------------------------------------+
 | Backpressure                                               
 |  [x] Enforce tests & commit
-+----------------------+
++------------------------------------------------------------+
 | Breadcrumb                                                 
 |  [x] Leave breadcrumbs
-+----------------------+
++------------------------------------------------------------+
 | Loop Configuration                                         
 |  Max iterations: [0]
-+----------------------+
-| Actions                                                     |
++------------------------------------------------------------+
+| Actions                                                    |
 | [Copy Prompt] [Run Once] [Run Loop] [Reset] [Quit]         |
-+----------------------+
++------------------------------------------------------------+
 | Effective Prompt (scrollable, always visible at bottom)    |
-| --------------------------------------------------------- |
-| study docs/SPEC.md                                        |
-| check docs/BREADCRUMBS.md                                 |
-| study docs/PLAN.md and pick the most important thing to do|
-| IMPORTANT:                                                |
-| - author property based tests or unit tests (whichever)   |
-| - after performing your task run the tests                |
-| - when tests pass, commit to deploy changes              |
-| if you ran into difficulties due to lack of info...       |
-| update docs/PLAN.md when the task is done                 |
-| --------------------------------------------------------- |
+| ---------------------------------------------------------  |
+| study docs/SPEC.md                                         |
+| check docs/BREADCRUMBS.md                                  |
+| follow docs/PLAN.md and choose the most important item to  |
+| address. Complete that item and no other.                  |
+| IMPORTANT:                                                 |
+| - After implementing functionality or resolving problems,  |
+| run the tests for that unit of code that was improved.     |
+| - If functionality is missing then it's your job to add it |
+| as per the application specifications.                     |
+| - after performing your task run the tests                 |
+| - when tests pass, commit to deploy changes                |
+| if you ran into difficulties due to lack of info...        |
+| Update docs/PLAN.md when the task is done. If you discover |
+| issues, immediately update docs/PLAN.md with your findings.|
+| When resolved, update docs/PLAN.md and remove the item.    |
+| ---------------------------------------------------------  |
 ```
 
 **Panels:**
