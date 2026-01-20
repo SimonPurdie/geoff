@@ -130,3 +130,17 @@ The application will transition from a `Horizontal` split (Left Panel + Right Sp
   - BreadcrumbWidget: `test_breadcrumb_initial_state`, `test_breadcrumb_toggle_property`, `test_breadcrumb_update_from_config`
   - StudyDocsWidget: `test_study_docs_initial_state`, `test_study_docs_update_from_config`, `test_study_docs_breadcrumbs_update`, `test_study_docs_add_remove_property`
   - TaskSourceWidget: `test_task_source_initial_state`, `test_task_source_mode_switch_property`, `test_task_source_tasklist_update`, `test_task_source_oneoff_update`, `test_task_source_update_mode`
+
+### Task 4: Property-Based Tests for PromptPreviewWidget - COMPLETED
+- **Date:** 2026-01-20
+- **Changes:**
+  - Added 6 new Hypothesis property-based tests for PromptPreviewWidget
+  - Tests cover initial state rendering with various configs, study_docs updates, backpressure updates, breadcrumb updates, task mode switch, and mode toggle
+  - All 147 tests pass (6 new tests added to existing 141)
+- **Tests:**
+  - `test_prompt_preview_initial_state`: Tests widget initialization with various combinations of study_docs, breadcrumbs, tasklist, backpressure, breadcrumb, and task_mode
+  - `test_prompt_preview_study_docs_update`: Tests that study_docs changes propagate to the preview
+  - `test_prompt_preview_backpressure_update`: Tests backpressure toggle updates the preview correctly
+  - `test_prompt_preview_breadcrumb_update`: Tests breadcrumb toggle updates the preview correctly
+  - `test_prompt_preview_task_mode_switch`: Tests task mode (tasklist/oneoff) affects preview content
+  - `test_prompt_preview_mode_toggle`: Tests mode switching updates the preview content
