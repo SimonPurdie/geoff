@@ -1,5 +1,10 @@
 # Breadcrumbs
 
+- **Task 15 (Validation System):** When testing with default PromptConfig values, the default `study_docs=["docs/SPEC.md"]`, `task_mode="tasklist"`, and `breadcrumb_enabled=True` mean validation will fail for missing files even if you're only testing a specific feature. Tests should either:
+  1. Create all necessary files in the tmp_path, OR
+  2. Disable features and use one-off mode with empty lists for study_docs to isolate the test case
+  - This is important for future agents writing widget tests that interact with config.
+
 - **Task 8 (Study Docs Panel):** I implemented `StudyDocsWidget` using standard `$primary` and `$secondary` CSS variables instead of `$geoff-primary` and `$geoff-secondary` as requested in the spec, because I ran into difficulties making the custom variables work in the test harness (`test_study_docs_widget.py`). The application logic works correctly. Future agents might want to revisit this to strictly adhere to the spec or fix the test setup.
 - **Task 9 (Task Source Panel):** When testing `TextArea` widgets, I found that programmatic updates in tests (`widget.text = "value"`) require manually posting the `TextArea.Changed(widget)` event to trigger handlers. Also, the `TextArea.Changed` event uses `event.text_area` to access the widget, unlike `Input.Changed` which uses `event.input`.
 - **Task 12 (Loop Configuration Panel):** Unlike `TextArea`, programmatic updates to `Input` widgets (`widget.value = "value"`) in tests *do* seem to trigger the `Changed` event (or at least the data binding logic worked as expected without manual event posting). Also found that `Static` (and `Label`) widgets in newer Textual versions don't easily expose their content via a `renderable` attribute for inspection; checking visibility or CSS classes is a more robust testing strategy for UI state.
