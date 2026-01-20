@@ -119,3 +119,8 @@ class StudyDocsWidget(Static):
 
         for i, doc in enumerate(self.config.study_docs):
             await docs_list.mount(DocRow(doc, i, classes="doc-row", id=f"doc-row-{i}"))
+
+    def update_from_config(self, config: PromptConfig) -> None:
+        self.config = config
+        breadcrumbs_input = self.query_one("#breadcrumbs-input", Input)
+        breadcrumbs_input.value = config.breadcrumbs_file

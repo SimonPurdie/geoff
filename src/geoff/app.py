@@ -80,7 +80,14 @@ class GeoffApp(App):
     def on_config_updated(self) -> None:
         """Handle config updates from child widgets."""
         self.query_one(PromptPreviewWidget).update_prompt()
-        # TODO: Auto-save config (Task 21)
+        self._save_config()
+
+    def _save_config(self) -> None:
+        """Auto-save config to repo-local .geoff/geoff.yaml."""
+        try:
+            self.config_manager.save_repo_config(self.prompt_config)
+        except Exception as e:
+            self.notify(f"Failed to save config: {e}", severity="error")
 
     def on_toolbar_widget_copy_prompt(self, message: ToolbarWidget.CopyPrompt) -> None:
         errors = self.validator.validate(self.prompt_config)
@@ -101,7 +108,17 @@ class GeoffApp(App):
         self.notify("Run Loop not implemented yet")
 
     def on_toolbar_widget_reset(self, message: ToolbarWidget.Reset) -> None:
-        self.notify("Reset not implemented yet")
+        self._reset_to_defaults()
+
+    def _reset_to_defaults(self) -> None:
+        """Reset all fields to global config defaults."""
+        repo_config_path = self.config_manager.repo_config_path
+        if repo_config_path.exists():
+            repo_config_path.unlink()
+
+        self.prompt_config = self.config_manager.resolve_config()
+        self.query_one(PromptPreviewWidget).update_prompt()
+        self.notify("Reset to defaults", severity="information")
 
     def on_toolbar_widget_quit(self, message: ToolbarWidget.Quit) -> None:
         self.exit()
