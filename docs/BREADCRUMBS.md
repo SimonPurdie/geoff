@@ -25,3 +25,10 @@
 
 - **Inspecting Static Content in Tests (Task 12, 14, 19):**
   - `Static` and `Label` widgets in newer Textual versions do not easily expose content via a `renderable` attribute. Use `str(widget.render())` to inspect the content object for assertions.
+
+- **Hypothesis Deadline in Async Tests (Task 25):**
+  - Property-based tests with multiple async operations (e.g., clicking, pausing) may exceed the default 200ms deadline. Add `deadline=None` to `@settings()` decorator to disable the deadline check for slow tests.
+  - Example: `@settings(max_examples=15, deadline=None)`
+
+- **Widget Config Object Handling (Task 25):**
+  - The `update_from_config()` method in widgets like TaskSourceWidget replaces the widget's internal config object (`self.config = config`) rather than updating a shared config. Tests checking config state should query `widget.config` instead of the original config object passed to the app.
