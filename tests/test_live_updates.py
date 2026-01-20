@@ -3,7 +3,6 @@ from unittest.mock import patch, MagicMock
 from pathlib import Path
 from textual.widgets import Input, Checkbox, TextArea, RadioButton
 from geoff.widgets.prompt_preview import PromptPreviewWidget
-from geoff.widgets.backpressure import BackpressureWidget
 from geoff.widgets.task_source import TaskSourceWidget
 
 
@@ -32,8 +31,8 @@ async def test_live_preview_updates(mock_config_manager):
     app = GeoffApp()
     async with app.run_test(size=(120, 80)) as pilot:
         # 1. Test Backpressure toggle
-        backpressure_widget = app.query_one(BackpressureWidget)
-        checkbox = backpressure_widget.query_one(Checkbox)
+        task_source_widget = app.query_one(TaskSourceWidget)
+        checkbox = task_source_widget.query_one("#backpressure-checkbox", Checkbox)
         preview_widget = app.query_one(PromptPreviewWidget)
 
         # Initial state: Backpressure is enabled by default
@@ -46,7 +45,6 @@ async def test_live_preview_updates(mock_config_manager):
         assert "IMPORTANT:" not in str(preview_widget.prompt_text.render())
 
         # 2. Test Task Source Input
-        task_source_widget = app.query_one(TaskSourceWidget)
         tasklist_input = task_source_widget.query_one("#tasklist-input", Input)
 
         tasklist_input.value = "new/plan.md"

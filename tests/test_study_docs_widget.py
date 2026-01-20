@@ -1,7 +1,7 @@
 import pytest
 from hypothesis import given, settings, strategies as st
 from textual.app import App, ComposeResult
-from textual.widgets import Input
+from textual.widgets import Input, Checkbox
 from textual.containers import Vertical
 from geoff.config import PromptConfig
 from geoff.widgets.study_docs import StudyDocsWidget, DocRow
@@ -31,11 +31,18 @@ class StudyDocsApp(App):
 @given(
     study_docs=st.lists(filepath_strategy(), max_size=5),
     breadcrumbs_file=filepath_strategy(),
+    breadcrumb_enabled=st.booleans(),
 )
 @settings(max_examples=30)
 @pytest.mark.asyncio
-async def test_study_docs_initial_state(study_docs, breadcrumbs_file):
-    config = PromptConfig(study_docs=study_docs, breadcrumbs_file=breadcrumbs_file)
+async def test_study_docs_initial_state(
+    study_docs, breadcrumbs_file, breadcrumb_enabled
+):
+    config = PromptConfig(
+        study_docs=study_docs,
+        breadcrumbs_file=breadcrumbs_file,
+        breadcrumb_enabled=breadcrumb_enabled,
+    )
     app = StudyDocsApp(config)
 
     async with app.run_test() as pilot:
@@ -50,21 +57,32 @@ async def test_study_docs_initial_state(study_docs, breadcrumbs_file):
         bc_input = widget.query_one("#breadcrumbs-input", Input)
         assert bc_input.value == breadcrumbs_file
 
+        bc_checkbox = widget.query_one("#breadcrumbs-checkbox", Checkbox)
+        assert bc_checkbox.value == breadcrumb_enabled
+
 
 @given(
     initial_docs=st.lists(filepath_strategy(), max_size=3),
     new_docs=st.lists(filepath_strategy(), max_size=3),
+    initial_bc_enabled=st.booleans(),
+    new_bc_enabled=st.booleans(),
 )
 @settings(max_examples=20)
 @pytest.mark.asyncio
-async def test_study_docs_update_from_config(initial_docs, new_docs):
-    config = PromptConfig(study_docs=initial_docs)
+async def test_study_docs_update_from_config(
+    initial_docs, new_docs, initial_bc_enabled, new_bc_enabled
+):
+    config = PromptConfig(
+        study_docs=initial_docs, breadcrumb_enabled=initial_bc_enabled
+    )
     app = StudyDocsApp(config)
 
     async with app.run_test() as pilot:
         widget = app.query_one(StudyDocsWidget)
 
-        new_config = PromptConfig(study_docs=new_docs)
+        new_config = PromptConfig(
+            study_docs=new_docs, breadcrumb_enabled=new_bc_enabled
+        )
         await widget.update_from_config(new_config)
 
         assert len(widget.query(DocRow)) == len(new_docs)
@@ -72,6 +90,9 @@ async def test_study_docs_update_from_config(initial_docs, new_docs):
         for i, expected_doc in enumerate(new_docs):
             input_widget = widget.query_one(f"#doc-input-{i}", Input)
             assert input_widget.value == expected_doc
+
+        bc_checkbox = widget.query_one("#breadcrumbs-checkbox", Checkbox)
+        assert bc_checkbox.value == new_bc_enabled
 
 
 @given(
@@ -152,9 +173,7 @@ async def test_study_docs_add_remove():
 
         assert len(widget.query(DocRow)) == 1
         assert len(config.study_docs) == 1
-        # The remaining doc should be the one added (default is docs/SPEC.md usually,
-        # but let's check what I implemented in add_doc: "docs/SPEC.md" or "docs/NEW_DOC.md"?)
-        # My implementation: self.config.study_docs.append("docs/SPEC.md")
+        # The remaining doc should be the one added
         assert config.study_docs[0] == "docs/SPEC.md"
 
 
@@ -180,3 +199,25 @@ async def test_study_docs_edit():
         await pilot.pause()
 
         assert config.breadcrumbs_file == "new_bread.md"
+
+
+@given(
+    initial_enabled=st.booleans(), toggle_times=st.integers(min_value=0, max_value=3)
+)
+@settings(max_examples=15, deadline=None)
+@pytest.mark.asyncio
+async def test_breadcrumb_toggle_property(initial_enabled, toggle_times):
+    config = PromptConfig(breadcrumb_enabled=initial_enabled)
+    app = StudyDocsApp(config)
+
+    async with app.run_test() as pilot:
+        widget = app.query_one(StudyDocsWidget)
+        checkbox = widget.query_one("#breadcrumbs-checkbox", Checkbox)
+
+        expected = initial_enabled
+        for _ in range(toggle_times):
+            await pilot.click("#breadcrumbs-checkbox")
+            await pilot.pause()
+            expected = not expected
+            assert checkbox.value == expected
+            assert config.breadcrumb_enabled == expected

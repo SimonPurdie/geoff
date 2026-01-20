@@ -10,9 +10,6 @@ from geoff.clipboard import copy_to_clipboard
 from geoff.messages import ConfigUpdated
 from geoff.widgets.study_docs import StudyDocsWidget
 from geoff.widgets.task_source import TaskSourceWidget
-from geoff.widgets.backpressure import BackpressureWidget
-from geoff.widgets.breadcrumb import BreadcrumbWidget
-from geoff.widgets.loop_config import LoopConfigWidget
 from geoff.widgets.toolbar import ToolbarWidget
 from geoff.widgets.prompt_preview import PromptPreviewWidget
 from geoff.widgets.error_modal import ErrorModal
@@ -47,11 +44,6 @@ class GeoffApp(App):
         height: 1fr;
     }
 
-    #settings-row {
-        layout: horizontal;
-        height: auto;
-    }
-
     #bottom-panel {
         height: 8;
         border-top: solid $geoff-border;
@@ -83,21 +75,6 @@ class GeoffApp(App):
         width: 1fr;
         height: 1fr;
     }
-
-    #backpressure {
-        width: 1fr;
-        height: auto;
-    }
-
-    #breadcrumb {
-        width: 1fr;
-        height: auto;
-    }
-
-    #loop-config {
-        width: 1fr;
-        height: auto;
-    }
     """
 
     def __init__(self):
@@ -113,11 +90,6 @@ class GeoffApp(App):
             with Horizontal(id="top-row"):
                 yield StudyDocsWidget(self.prompt_config, id="study-docs")
                 yield TaskSourceWidget(self.prompt_config, id="task-source")
-
-            with Horizontal(id="settings-row"):
-                yield BackpressureWidget(self.prompt_config, id="backpressure")
-                yield BreadcrumbWidget(self.prompt_config, id="breadcrumb")
-                yield LoopConfigWidget(self.prompt_config, id="loop-config")
 
             yield ToolbarWidget(id="actions")
 
@@ -190,9 +162,6 @@ class GeoffApp(App):
         # Update all widgets
         await self.query_one(StudyDocsWidget).update_from_config(self.prompt_config)
         self.query_one(TaskSourceWidget).update_from_config(self.prompt_config)
-        self.query_one(BackpressureWidget).update_from_config(self.prompt_config)
-        self.query_one(BreadcrumbWidget).update_from_config(self.prompt_config)
-        self.query_one(LoopConfigWidget).update_from_config(self.prompt_config)
 
         self.query_one(PromptPreviewWidget).update_prompt(self.prompt_config)
         self.notify("Reset to defaults", severity="information")

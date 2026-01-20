@@ -1,7 +1,16 @@
 from textual.app import ComposeResult
 from textual.containers import Vertical, Horizontal
-from textual.widgets import Static, Label, Input, TextArea, RadioSet, RadioButton
+from textual.widgets import (
+    Static,
+    Label,
+    Input,
+    TextArea,
+    RadioSet,
+    RadioButton,
+    Checkbox,
+)
 from textual import on
+from textual.validation import Number, Function
 
 from geoff.config import PromptConfig
 from geoff.messages import ConfigUpdated
@@ -24,7 +33,6 @@ class TaskSourceWidget(Static):
         layout: vertical;
         height: 1fr;
         border: solid $geoff-border;
-        padding: 1;
         background: $geoff-panel-bg;
     }
 
@@ -85,6 +93,42 @@ class TaskSourceWidget(Static):
     TaskSourceWidget Label {
         color: $geoff-text-muted;
     }
+
+    /* Loop Config Styles */
+    TaskSourceWidget .loop-config-row {
+        height: auto;
+        align-vertical: middle;
+        margin-top: 1;
+    }
+    
+    TaskSourceWidget .loop-config-row Label {
+        margin-right: 1;
+    }
+
+    TaskSourceWidget .small-input {
+        width: 10;
+    }
+    
+    TaskSourceWidget #infinity-indicator {
+        margin-left: 1;
+        color: $geoff-accent;
+        text-style: bold;
+        width: 3;
+    }
+
+    TaskSourceWidget .hidden {
+        display: none;
+    }
+
+    TaskSourceWidget Checkbox {
+        height: 1;
+        color: $geoff-text;
+        margin-top: 1;
+    }
+
+    TaskSourceWidget Checkbox:hover {
+        color: $geoff-primary;
+    }
     """
 
     def __init__(self, config: PromptConfig, **kwargs):
@@ -92,9 +136,7 @@ class TaskSourceWidget(Static):
         self.config = config
 
     def compose(self) -> ComposeResult:
-        yield Label(
-            "Task Source (mutually exclusive, required)", classes="section-title"
-        )
+        yield Label("Task Configuration", classes="section-title")
 
         with RadioSet(id="mode-radios"):
             yield RadioButton(
@@ -123,9 +165,43 @@ class TaskSourceWidget(Static):
             self.config.oneoff_prompt, id="oneoff-input", show_line_numbers=False
         )
 
+        # Backpressure
+        yield Checkbox(
+            "Enforce tests & commit",
+            value=self.config.backpressure_enabled,
+            id="backpressure-checkbox",
+        )
+
+        # Loop Config
+        with Horizontal(classes="loop-config-row"):
+            yield Label("Max iterations:")
+            yield Input(
+                str(self.config.max_iterations),
+                id="max-iterations",
+                classes="small-input",
+                validators=[
+                    Number(minimum=0),
+                    Function(lambda v: v.isdigit(), "Must be an integer"),
+                ],
+            )
+            # Infinity symbol: ∞
+            yield Label("∞", id="infinity-indicator")
+
+            yield Label("  Max stuck:")
+            yield Input(
+                str(self.config.max_stuck),
+                id="max-stuck",
+                classes="small-input",
+                validators=[
+                    Number(minimum=0),
+                    Function(lambda v: v.isdigit(), "Must be an integer"),
+                ],
+            )
+
     def on_mount(self) -> None:
         # Set initial visibility based on mode
         self.update_visibility()
+        self._update_infinity_indicator()
 
     def update_visibility(self) -> None:
         is_tasklist = self.config.task_mode == "tasklist"
@@ -157,6 +233,43 @@ class TaskSourceWidget(Static):
         self.config.oneoff_prompt = event.text_area.text
         self.post_message(ConfigUpdated())
 
+    @on(Checkbox.Changed, "#backpressure-checkbox")
+    def on_backpressure_changed(self, event: Checkbox.Changed) -> None:
+        self.config.backpressure_enabled = event.value
+        self.post_message(ConfigUpdated())
+
+    @on(Input.Changed, "#max-iterations")
+    def on_max_iterations_changed(self, event: Input.Changed) -> None:
+        if event.validation_result and event.validation_result.is_valid:
+            try:
+                val = int(event.value)
+                self.config.max_iterations = val
+                self._update_infinity_indicator()
+                self.post_message(ConfigUpdated())
+            except ValueError:
+                pass
+
+    @on(Input.Changed, "#max-stuck")
+    def on_max_stuck_changed(self, event: Input.Changed) -> None:
+        if event.validation_result and event.validation_result.is_valid:
+            try:
+                val = int(event.value)
+                self.config.max_stuck = val
+                self.post_message(ConfigUpdated())
+            except ValueError:
+                pass
+
+    def _update_infinity_indicator(self) -> None:
+        indicator = self.query_one("#infinity-indicator", Label)
+        try:
+            val = int(self.query_one("#max-iterations", Input).value)
+            if val == 0:
+                indicator.remove_class("hidden")
+            else:
+                indicator.add_class("hidden")
+        except ValueError:
+            indicator.add_class("hidden")
+
     def update_from_config(self, config: PromptConfig) -> None:
         self.config = config
         self.query_one("#mode-tasklist", RadioButton).value = (
@@ -165,4 +278,12 @@ class TaskSourceWidget(Static):
         self.query_one("#mode-oneoff", RadioButton).value = config.task_mode == "oneoff"
         self.query_one("#tasklist-input", Input).value = config.tasklist_file
         self.query_one("#oneoff-input", TextArea).text = config.oneoff_prompt
+
+        self.query_one(
+            "#backpressure-checkbox", Checkbox
+        ).value = config.backpressure_enabled
+        self.query_one("#max-iterations", Input).value = str(config.max_iterations)
+        self.query_one("#max-stuck", Input).value = str(config.max_stuck)
+
         self.update_visibility()
+        self._update_infinity_indicator()

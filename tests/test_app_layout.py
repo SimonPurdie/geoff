@@ -9,9 +9,6 @@ async def test_app_layout():
     async with app.run_test() as pilot:
         assert pilot.app.query_one("#study-docs")
         assert pilot.app.query_one("#task-source")
-        assert pilot.app.query_one("#backpressure")
-        assert pilot.app.query_one("#breadcrumb")
-        assert pilot.app.query_one("#loop-config")
         assert pilot.app.query_one("#actions")
         assert pilot.app.query_one("#bottom-panel")
 
@@ -25,20 +22,10 @@ async def test_new_dashboard_layout_structure():
         top_row = pilot.app.query_one("#top-row")
         assert top_row in list(main_body.children)
 
-        settings_row = pilot.app.query_one("#settings-row")
-        assert settings_row in list(main_body.children)
-
         study_docs = pilot.app.query_one("#study-docs")
         task_source = pilot.app.query_one("#task-source")
         assert study_docs in list(top_row.children)
         assert task_source in list(top_row.children)
-
-        backpressure = pilot.app.query_one("#backpressure")
-        breadcrumb = pilot.app.query_one("#breadcrumb")
-        loop_config = pilot.app.query_one("#loop-config")
-        assert backpressure in list(settings_row.children)
-        assert breadcrumb in list(settings_row.children)
-        assert loop_config in list(settings_row.children)
 
         toolbar = pilot.app.query_one("#actions")
         assert toolbar in list(main_body.children)

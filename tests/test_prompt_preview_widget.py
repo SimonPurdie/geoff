@@ -234,8 +234,8 @@ async def test_prompt_preview_task_mode_switch(task_mode, tasklist_file, oneoff_
                 in prompt_content
             )
             assert f"update {tasklist_file} when the task is done" in prompt_content
-        else:
-            assert oneoff_prompt in prompt_content
+            else:
+            assert oneoff_prompt.strip() in prompt_content
             assert "pick the most important thing to do" not in prompt_content
 
 

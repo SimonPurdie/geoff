@@ -1,7 +1,7 @@
 import pytest
 from hypothesis import given, settings, strategies as st
 from textual.app import App, ComposeResult
-from textual.widgets import Input, RadioSet, TextArea, RadioButton
+from textual.widgets import Input, RadioSet, TextArea, RadioButton, Checkbox
 from geoff.config import PromptConfig
 from geoff.widgets.task_source import TaskSourceWidget
 
@@ -38,14 +38,27 @@ class TaskSourceApp(App):
     task_mode=st.sampled_from(["tasklist", "oneoff"]),
     tasklist_file=filepath_strategy(),
     oneoff_prompt=text_strategy(),
+    backpressure_enabled=st.booleans(),
+    max_iterations=st.integers(min_value=0, max_value=100),
+    max_stuck=st.integers(min_value=0, max_value=10),
 )
 @settings(max_examples=30)
 @pytest.mark.asyncio
-async def test_task_source_initial_state(task_mode, tasklist_file, oneoff_prompt):
+async def test_task_source_initial_state(
+    task_mode,
+    tasklist_file,
+    oneoff_prompt,
+    backpressure_enabled,
+    max_iterations,
+    max_stuck,
+):
     config = PromptConfig(
         task_mode=task_mode,
         tasklist_file=tasklist_file,
         oneoff_prompt=oneoff_prompt,
+        backpressure_enabled=backpressure_enabled,
+        max_iterations=max_iterations,
+        max_stuck=max_stuck,
     )
     app = TaskSourceApp(config)
 
@@ -54,13 +67,22 @@ async def test_task_source_initial_state(task_mode, tasklist_file, oneoff_prompt
 
         radios = widget.query_one(RadioSet)
         if task_mode == "tasklist":
+            assert radios.pressed_button is not None
             assert radios.pressed_button.id == "mode-tasklist"
             assert widget.query_one("#tasklist-input", Input).display is True
             assert widget.query_one("#oneoff-input", TextArea).display is False
         else:
+            assert radios.pressed_button is not None
             assert radios.pressed_button.id == "mode-oneoff"
             assert widget.query_one("#tasklist-input", Input).display is False
             assert widget.query_one("#oneoff-input", TextArea).display is True
+
+        assert (
+            widget.query_one("#backpressure-checkbox", Checkbox).value
+            == backpressure_enabled
+        )
+        assert widget.query_one("#max-iterations", Input).value == str(max_iterations)
+        assert widget.query_one("#max-stuck", Input).value == str(max_stuck)
 
 
 @given(
@@ -156,7 +178,9 @@ async def test_task_source_mode_switch():
         widget = app.query_one(TaskSourceWidget)
 
         # Check initial state
-        assert widget.query_one(RadioSet).pressed_button.id == "mode-tasklist"
+        radios = widget.query_one(RadioSet)
+        assert radios.pressed_button is not None
+        assert radios.pressed_button.id == "mode-tasklist"
         assert widget.query_one("#tasklist-input", Input).display is True
         assert widget.query_one("#oneoff-input", TextArea).display is False
 
@@ -188,9 +212,6 @@ async def test_task_source_edit_values():
         # Edit tasklist file
         input_widget = app.query_one("#tasklist-input", Input)
         input_widget.value = "new_plan.md"
-        # Manually triggering changed event if needed, but value assignment might trigger it?
-        # Textual's Input.Changed is usually triggered by user interaction.
-        # We can simulate typing or just post the message.
         input_widget.post_message(Input.Changed(input_widget, "new_plan.md"))
         await pilot.pause()
 
@@ -207,3 +228,54 @@ async def test_task_source_edit_values():
         await pilot.pause()
 
         assert config.oneoff_prompt == "new prompt"
+
+
+@given(
+    initial_enabled=st.booleans(), toggle_times=st.integers(min_value=0, max_value=3)
+)
+@settings(max_examples=15, deadline=None)
+@pytest.mark.asyncio
+async def test_backpressure_toggle_property(initial_enabled, toggle_times):
+    config = PromptConfig(backpressure_enabled=initial_enabled)
+    app = TaskSourceApp(config)
+
+    async with app.run_test() as pilot:
+        widget = app.query_one(TaskSourceWidget)
+        checkbox = widget.query_one("#backpressure-checkbox", Checkbox)
+
+        expected = initial_enabled
+        for _ in range(toggle_times):
+            await pilot.click("#backpressure-checkbox")
+            await pilot.pause()
+            expected = not expected
+            assert checkbox.value == expected
+            assert config.backpressure_enabled == expected
+
+
+@pytest.mark.asyncio
+async def test_loop_config_edit():
+    config = PromptConfig(max_iterations=0, max_stuck=2)
+    app = TaskSourceApp(config)
+
+    async with app.run_test() as pilot:
+        widget = app.query_one(TaskSourceWidget)
+
+        # Max Iterations
+        iter_input = widget.query_one("#max-iterations", Input)
+        iter_input.value = "5"
+        iter_input.post_message(Input.Changed(iter_input, "5"))
+        await pilot.pause()
+        assert config.max_iterations == 5
+
+        # Validation test
+        iter_input.value = "-1"
+        iter_input.post_message(Input.Changed(iter_input, "-1"))
+        await pilot.pause()
+        assert config.max_iterations == 5  # Should not change
+
+        # Max Stuck
+        stuck_input = widget.query_one("#max-stuck", Input)
+        stuck_input.value = "10"
+        stuck_input.post_message(Input.Changed(stuck_input, "10"))
+        await pilot.pause()
+        assert config.max_stuck == 10

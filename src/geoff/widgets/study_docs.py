@@ -1,6 +1,6 @@
 from textual.app import ComposeResult
 from textual.containers import Vertical, Horizontal
-from textual.widgets import Static, Label, Input, Button
+from textual.widgets import Static, Label, Input, Button, Checkbox
 from textual import on
 
 from geoff.config import PromptConfig
@@ -35,7 +35,6 @@ class StudyDocsWidget(Static):
         layout: vertical;
         height: 1fr;
         border: solid $geoff-border;
-        padding: 1;
         background: $geoff-panel-bg;
     }
 
@@ -43,6 +42,11 @@ class StudyDocsWidget(Static):
         color: $geoff-primary;
         text-style: bold;
         margin-bottom: 1;
+    }
+
+    StudyDocsWidget #docs-list {
+        height: 1fr;
+        overflow-y: auto;
     }
 
     StudyDocsWidget .doc-row {
@@ -90,10 +94,17 @@ class StudyDocsWidget(Static):
     StudyDocsWidget #breadcrumbs-input-row {
         height: auto;
         align-vertical: middle;
+        padding: 0 1 1 1;
     }
 
-    StudyDocsWidget #breadcrumbs-input-row Label {
+    StudyDocsWidget #breadcrumbs-input-row Checkbox {
         min-width: 15;
+        height: 1;
+        color: $geoff-text-muted;
+    }
+    
+    StudyDocsWidget #breadcrumbs-input-row Checkbox:hover {
+        color: $geoff-primary;
     }
 
     StudyDocsWidget #breadcrumbs-input {
@@ -113,17 +124,18 @@ class StudyDocsWidget(Static):
         self.config = config
 
     def compose(self) -> ComposeResult:
-        yield Label("Orientation / Study Docs", classes="section-title")
-
-        yield Label("Docs:")
         with Vertical(id="docs-list"):
             for i, doc in enumerate(self.config.study_docs):
                 yield DocRow(doc, i, classes="doc-row", id=f"doc-row-{i}")
 
-        yield Button("+ Add Doc", id="add-doc-btn", variant="primary")
+            yield Button("+ Add Doc", id="add-doc-btn", variant="primary")
 
         with Horizontal(id="breadcrumbs-input-row"):
-            yield Label("Breadcrumbs:")
+            yield Checkbox(
+                "Breadcrumbs",
+                value=self.config.breadcrumb_enabled,
+                id="breadcrumbs-checkbox",
+            )
             yield Input(
                 value=self.config.breadcrumbs_file,
                 id="breadcrumbs-input",
@@ -146,6 +158,11 @@ class StudyDocsWidget(Static):
                 self.post_message(ConfigUpdated())
                 await self.recompose_docs_list()
 
+    @on(Checkbox.Changed, "#breadcrumbs-checkbox")
+    def on_breadcrumb_toggled(self, event: Checkbox.Changed):
+        self.config.breadcrumb_enabled = event.value
+        self.post_message(ConfigUpdated())
+
     @on(Input.Changed)
     def on_input_changed(self, event: Input.Changed):
         if event.input.id == "breadcrumbs-input":
@@ -161,13 +178,27 @@ class StudyDocsWidget(Static):
 
     async def recompose_docs_list(self):
         docs_list = self.query_one("#docs-list", Vertical)
+        # Remove all children except the button (which is last)
+        # But wait, Button is INSIDE docs-list in my new compose method?
+        # Yes:
+        # with Vertical(id="docs-list"):
+        #     ... rows ...
+        #     yield Button
+
+        # So I should clear all and rebuild all.
         await docs_list.remove_children()
 
         for i, doc in enumerate(self.config.study_docs):
             await docs_list.mount(DocRow(doc, i, classes="doc-row", id=f"doc-row-{i}"))
 
+        await docs_list.mount(Button("+ Add Doc", id="add-doc-btn", variant="primary"))
+
     async def update_from_config(self, config: PromptConfig) -> None:
         self.config = config
         breadcrumbs_input = self.query_one("#breadcrumbs-input", Input)
         breadcrumbs_input.value = config.breadcrumbs_file
+
+        breadcrumbs_checkbox = self.query_one("#breadcrumbs-checkbox", Checkbox)
+        breadcrumbs_checkbox.value = config.breadcrumb_enabled
+
         await self.recompose_docs_list()
