@@ -1,4 +1,6 @@
 import pytest
+from hypothesis import given, settings
+from hypothesis import strategies as st
 from textual.app import App, ComposeResult
 from textual.widgets import Button, Static
 
@@ -223,3 +225,121 @@ async def test_error_modal_error_count_matches():
         statics = modal.query(Static)
         error_statics = [s for s in statics if "- " in str(s.render())]
         assert len(error_statics) == 4
+
+
+@given(errors=st.lists(st.text(min_size=1, max_size=100), min_size=0, max_size=10))
+@settings(max_examples=20)
+@pytest.mark.asyncio
+async def test_error_modal_property_init_with_various_errors(errors):
+    class TestApp(App):
+        CSS = """
+        $geoff-primary: blue;
+        $geoff-secondary: green;
+        """
+
+        def compose(self) -> ComposeResult:
+            yield ErrorModal(errors)
+
+    app = TestApp()
+    async with app.run_test() as pilot:
+        modal = app.query_one(ErrorModal)
+        assert modal.errors == errors
+
+
+@given(
+    errors=st.lists(
+        st.text(
+            alphabet=st.characters(min_codepoint=32, max_codepoint=126),
+            min_size=1,
+            max_size=50,
+        ),
+        min_size=1,
+        max_size=5,
+    )
+)
+@settings(max_examples=20, deadline=None)
+@pytest.mark.asyncio
+async def test_error_modal_property_renders_all_errors(errors):
+    class TestApp(App):
+        CSS = """
+        $geoff-primary: blue;
+        $geoff-secondary: green;
+        """
+
+        def compose(self) -> ComposeResult:
+            yield ErrorModal(errors)
+
+    app = TestApp()
+    async with app.run_test() as pilot:
+        modal = app.query_one(ErrorModal)
+        statics = modal.query(Static)
+        rendered_texts = [str(s.render()) for s in statics]
+        for error in errors:
+            assert any(error in text for text in rendered_texts)
+
+
+@given(num_errors=st.integers(min_value=1, max_value=20))
+@settings(max_examples=15)
+@pytest.mark.asyncio
+async def test_error_modal_property_error_count(num_errors):
+    class TestApp(App):
+        CSS = """
+        $geoff-primary: blue;
+        $geoff-secondary: green;
+        """
+
+        def compose(self) -> ComposeResult:
+            errors = [f"Error {i}" for i in range(num_errors)]
+            yield ErrorModal(errors)
+
+    app = TestApp()
+    async with app.run_test() as pilot:
+        modal = app.query_one(ErrorModal)
+        statics = modal.query(Static)
+        error_statics = [s for s in statics if "- " in str(s.render())]
+        assert len(error_statics) == num_errors
+
+
+@given(errors=st.lists(st.text(min_size=1, max_size=100), min_size=1, max_size=10))
+@settings(max_examples=15, deadline=None)
+@pytest.mark.asyncio
+async def test_error_modal_property_dismiss_behavior(errors):
+    class TestApp(App):
+        CSS = """
+        $geoff-primary: blue;
+        $geoff-secondary: green;
+        """
+
+        def compose(self) -> ComposeResult:
+            yield ErrorModal(errors)
+
+    app = TestApp()
+    async with app.run_test() as pilot:
+        modal = app.query_one(ErrorModal)
+        assert len(app.screen_stack) == 1
+
+        await pilot.click("#error-ok-button")
+        await pilot.pause()
+
+        assert len(app.screen_stack) == 1
+
+
+@given(errors=st.lists(st.text(min_size=1, max_size=50), min_size=1, max_size=5))
+@settings(max_examples=10)
+@pytest.mark.asyncio
+async def test_error_modal_property_ok_button_exists(errors):
+    class TestApp(App):
+        CSS = """
+        $geoff-primary: blue;
+        $geoff-secondary: green;
+        """
+
+        def compose(self) -> ComposeResult:
+            yield ErrorModal(errors)
+
+    app = TestApp()
+    async with app.run_test() as pilot:
+        modal = app.query_one(ErrorModal)
+        ok_button = modal.query_one("#error-ok-button", Button)
+        assert ok_button is not None
+        assert ok_button.label == "OK"
