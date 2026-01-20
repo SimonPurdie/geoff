@@ -20,26 +20,15 @@ class DocRow(Horizontal):
 
 class StudyDocsWidget(Static):
     DEFAULT_CSS = """
-    $geoff-primary: #3b82f6;
-    $geoff-secondary: #64748b;
-    $geoff-accent: #8b5cf6;
-    $geoff-success: #22c55e;
-    $geoff-warning: #f59e0b;
-    $geoff-error: #ef4444;
-    $geoff-panel-bg: #1e293b;
-    $geoff-border: #475569;
-    $geoff-text: #f1f5f9;
-    $geoff-text-muted: #94a3b8;
-
     StudyDocsWidget {
         layout: vertical;
         height: 1fr;
-        border: solid $geoff-border;
-        background: $geoff-panel-bg;
+        background: $surface;
+        padding: 1 2;
     }
 
     StudyDocsWidget .section-title {
-        color: $geoff-primary;
+        color: $primary;
         text-style: bold;
         margin-bottom: 1;
     }
@@ -53,48 +42,71 @@ class StudyDocsWidget(Static):
         layout: horizontal;
         height: auto;
         align-vertical: middle;
+        margin-bottom: 1;
     }
 
     StudyDocsWidget .doc-input {
         width: 1fr;
-        background: #0f172a;
-        border: solid $geoff-border;
+        background: $boost;
+        border: none;
         padding: 0 1;
+        height: 1;
     }
-
+    
     StudyDocsWidget .doc-input:focus {
-        border: solid $geoff-primary;
+        border: none;
+        text-style: underline;
     }
 
     StudyDocsWidget .remove-btn {
         width: 4;
         min-width: 4;
         margin-left: 1;
-        background: $geoff-error;
-        color: $geoff-text;
+        background: $error;
+        color: $text;
+        border: none;
+        height: 1;
     }
 
     StudyDocsWidget .remove-btn:hover {
-        background: #dc2626;
+        background: $error-darken-1;
+        color: $text;
     }
 
     StudyDocsWidget #add-doc-btn {
-        margin-bottom: 1;
-        background: $geoff-secondary;
+        margin-top: 1;
+        margin-bottom: 2;
+        background: transparent;
+        color: $primary;
+        border: none;
+        height: 1;
+        width: auto;
+        min-width: 10;
+        padding: 0;
     }
 
     StudyDocsWidget #add-doc-btn:hover {
-        background: #475569;
+        text-style: underline;
+        background: transparent;
     }
 
     StudyDocsWidget Label {
-        color: $geoff-text-muted;
+        color: $text-muted;
+    }
+
+    StudyDocsWidget .section-subtitle {
+        color: $text-muted;
+        text-style: bold;
+        margin-right: 1;
+        width: auto;
     }
 
     StudyDocsWidget #breadcrumbs-input-row {
         height: auto;
         align-vertical: middle;
-        padding: 0 1 1 1;
+        padding-top: 1;
+        border-top: solid $primary-background;
+        margin-top: 1;
     }
 
     StudyDocsWidget #breadcrumbs-input-row Checkbox {
@@ -102,48 +114,27 @@ class StudyDocsWidget(Static):
         height: 1;
         border: none;
         background: transparent;
-        color: $geoff-text-muted;
+        color: $text-muted;
+        margin: 0;
+        padding: 0;
     }
 
     StudyDocsWidget #breadcrumbs-input-row Checkbox:hover {
-        color: $geoff-primary;
-    }
-
-    StudyDocsWidget #breadcrumbs-input-row Checkbox:focus > .toggle--button {
-        background: #000000;
-        border: solid $geoff-border;
-        color: #000000;
-    }
-
-    StudyDocsWidget #breadcrumbs-input-row Checkbox:hover > .toggle--button {
-        background: #000000;
-        border: solid $geoff-border;
-        color: #000000;
-    }
-
-    StudyDocsWidget #breadcrumbs-input-row Checkbox > .toggle--button {
-        color: #000000;
-        background: #000000;
-        border: solid $geoff-border;
-        width: 1;
-        height: 1;
-    }
-
-    StudyDocsWidget #breadcrumbs-input-row Checkbox.-on > .toggle--button {
-        color: $geoff-success;
-        background: #000000;
-        border: solid $geoff-success;
+        color: $primary;
     }
 
     StudyDocsWidget #breadcrumbs-input {
         width: 1fr;
-        background: #0f172a;
-        border: solid $geoff-border;
+        background: $boost;
+        border: none;
         padding: 0 1;
+        height: 1;
+        margin-left: 1;
     }
 
     StudyDocsWidget #breadcrumbs-input:focus {
-        border: solid $geoff-primary;
+        border: none;
+        text-style: underline;
     }
     """
 
@@ -152,6 +143,7 @@ class StudyDocsWidget(Static):
         self.config = config
 
     def compose(self) -> ComposeResult:
+        yield Label("Orientation / Study Docs", classes="section-title")
         with Vertical(id="docs-list"):
             for i, doc in enumerate(self.config.study_docs):
                 yield DocRow(doc, i, classes="doc-row", id=f"doc-row-{i}")
@@ -159,6 +151,7 @@ class StudyDocsWidget(Static):
             yield Button("+ Add Doc", id="add-doc-btn", variant="primary")
 
         with Horizontal(id="breadcrumbs-input-row"):
+            yield Label("Breadcrumbs:", classes="section-subtitle")
             yield Checkbox(
                 value=self.config.breadcrumb_enabled,
                 id="breadcrumbs-checkbox",

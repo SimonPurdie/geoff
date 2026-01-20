@@ -54,14 +54,10 @@ def get_required_widgets() -> List[Dict[str, Any]]:
         {"type": "Header", "id": None, "required": True},
         {"type": "StudyDocsWidget", "id": "study-docs", "required": True},
         {"type": "TaskSourceWidget", "id": "task-source", "required": True},
-        {"type": "BackpressureWidget", "id": "backpressure", "required": True},
-        {"type": "BreadcrumbWidget", "id": "breadcrumb", "required": True},
-        {"type": "LoopConfigWidget", "id": "loop-config", "required": True},
         {"type": "ToolbarWidget", "id": "actions", "required": True},
         {"type": "PromptPreviewWidget", "id": "bottom-panel", "required": True},
         {"type": "Container", "id": "main-body", "required": True},
         {"type": "Horizontal", "id": "top-row", "required": True},
-        {"type": "Horizontal", "id": "settings-row", "required": True},
     ]
 
 

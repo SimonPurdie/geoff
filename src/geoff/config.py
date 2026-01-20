@@ -11,6 +11,7 @@ class PromptConfig:
     oneoff_prompt: str = ""
     backpressure_enabled: bool = True
     breadcrumb_enabled: bool = True
+    theme: str = "textual-dark"
     max_iterations: int = 0
     max_stuck: int = 2
     prompt_tasklist_study: str = (

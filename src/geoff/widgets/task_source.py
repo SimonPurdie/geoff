@@ -18,26 +18,15 @@ from geoff.messages import ConfigUpdated
 
 class TaskSourceWidget(Static):
     DEFAULT_CSS = """
-    $geoff-primary: #3b82f6;
-    $geoff-secondary: #64748b;
-    $geoff-accent: #8b5cf6;
-    $geoff-success: #22c55e;
-    $geoff-warning: #f59e0b;
-    $geoff-error: #ef4444;
-    $geoff-panel-bg: #1e293b;
-    $geoff-border: #475569;
-    $geoff-text: #f1f5f9;
-    $geoff-text-muted: #94a3b8;
-
     TaskSourceWidget {
         layout: vertical;
         height: 1fr;
-        border: solid $geoff-border;
-        background: $geoff-panel-bg;
+        background: $surface;
+        padding: 1 2;
     }
 
     TaskSourceWidget .section-title {
-        color: $geoff-primary;
+        color: $primary;
         text-style: bold;
         margin-bottom: 1;
     }
@@ -46,33 +35,49 @@ class TaskSourceWidget(Static):
         layout: vertical;
         height: auto;
         margin-bottom: 1;
+        background: transparent;
+        border: none;
+    }
+    
+    TaskSourceWidget RadioSet:focus {
+        border: none;
+    }
+    
+    TaskSourceWidget #input-container {
+        height: 1fr;
     }
 
     TaskSourceWidget RadioButton {
-        color: $geoff-text;
+        color: $text;
+        background: transparent;
+        border: none;
+        padding: 0;
     }
 
     TaskSourceWidget RadioButton:hover {
-        color: $geoff-primary;
+        color: $primary;
+        background: transparent;
     }
 
-    TaskSourceWidget RadioButton:focus {
-        background: $geoff-border;
+    TaskSourceWidget RadioButton.-on {
+        color: $primary;
     }
 
     TaskSourceWidget TextArea {
         height: 1fr;
-        border: solid $geoff-border;
-        background: #0f172a;
+        border: none;
+        background: $boost;
+        margin-left: 2;
     }
 
     TaskSourceWidget TextArea:focus {
-        border: solid $geoff-primary;
+        border: none;
     }
 
     TaskSourceWidget #tasklist-input-row {
         height: auto;
         align-vertical: middle;
+        margin-left: 2;
     }
 
     TaskSourceWidget #tasklist-input-row Label {
@@ -81,17 +86,19 @@ class TaskSourceWidget(Static):
 
     TaskSourceWidget Input {
         width: 1fr;
-        background: #0f172a;
-        border: solid $geoff-border;
+        background: $boost;
+        border: none;
         padding: 0 1;
+        height: 1;
     }
 
     TaskSourceWidget Input:focus {
-        border: solid $geoff-primary;
+        border: none;
+        text-style: underline;
     }
 
     TaskSourceWidget Label {
-        color: $geoff-text-muted;
+        color: $text-muted;
     }
 
     /* Loop Config Styles */
@@ -99,6 +106,8 @@ class TaskSourceWidget(Static):
         height: auto;
         align-vertical: middle;
         margin-top: 1;
+        padding-top: 1;
+        border-top: solid $primary-background;
     }
     
     TaskSourceWidget .loop-config-row Label {
@@ -106,12 +115,15 @@ class TaskSourceWidget(Static):
     }
 
     TaskSourceWidget .small-input {
-        width: 10;
+        width: 6;
+        background: $boost;
+        border: none;
+        text-align: center;
     }
     
     TaskSourceWidget #infinity-indicator {
         margin-left: 1;
-        color: $geoff-accent;
+        color: $secondary;
         text-style: bold;
         width: 3;
     }
@@ -125,56 +137,50 @@ class TaskSourceWidget(Static):
         height: 1;
         border: none;
         background: transparent;
-        color: $geoff-text-muted;
-        margin-top: 1;
+        color: $text-muted;
+        margin: 0;
+        padding: 0;
     }
 
     TaskSourceWidget Checkbox:hover {
-        color: $geoff-primary;
+        color: $primary;
+        background: transparent;
+        border: none;
     }
-
+    
     TaskSourceWidget Checkbox:focus {
         border: none;
         background: transparent;
     }
 
-    TaskSourceWidget Checkbox:focus > .toggle--button {
-        background: #000000;
-        border: solid $geoff-border;
-        color: #000000;
-    }
-
-    TaskSourceWidget Checkbox:hover > .toggle--button {
-        background: #000000;
-        border: solid $geoff-border;
-        color: #000000;
-    }
-
-    TaskSourceWidget Checkbox > .toggle--button {
-        color: #000000;
-        background: #000000;
-        border: solid $geoff-border;
-        width: 1;
-        height: 1;
-    }
-
-    TaskSourceWidget Checkbox.-on > .toggle--button {
-        color: $geoff-success;
-        background: #000000;
-        border: solid $geoff-success;
-    }
-
-    TaskSourceWidget Checkbox:focus.-on > .toggle--button {
-        color: $geoff-success;
-        background: #000000;
-        border: solid $geoff-success;
+    TaskSourceWidget .backpressure-row {
+        height: auto;
+        align-vertical: middle;
+        padding-top: 1;
+        border-top: solid $primary-background;
+        margin-top: 1;
     }
 
     TaskSourceWidget .section-subtitle {
-        color: $geoff-text-muted;
+        color: $text-muted;
         text-style: bold;
+        margin: 0;
+        margin-right: 1;
+        width: auto;
+    }
+
+    /* Loop Config Styles */
+    TaskSourceWidget .loop-config-row {
+        height: auto;
+        align-vertical: middle;
         margin-top: 1;
-        margin-bottom: 0;
+    }
+
+    TaskSourceWidget .section-subtitle {
+        color: $text-muted;
+        text-style: bold;
+        margin: 0;
+        margin-right: 1;
     }
     """
 
@@ -185,39 +191,42 @@ class TaskSourceWidget(Static):
     def compose(self) -> ComposeResult:
         yield Label("Task Configuration", classes="section-title")
 
-        with RadioSet(id="mode-radios"):
-            yield RadioButton(
-                "Tasklist Mode",
-                id="mode-tasklist",
-                value=(self.config.task_mode == "tasklist"),
+        # Container for variable inputs to ensure consistent spacing
+        with Vertical(id="input-container"):
+            with RadioSet(id="mode-radios"):
+                yield RadioButton(
+                    "Tasklist Mode",
+                    id="mode-tasklist",
+                    value=(self.config.task_mode == "tasklist"),
+                )
+                yield RadioButton(
+                    "One-off Prompt",
+                    id="mode-oneoff",
+                    value=(self.config.task_mode == "oneoff"),
+                )
+
+            # Tasklist input
+            with Horizontal(id="tasklist-input-row"):
+                yield Label("Tasklist File:", id="tasklist-label")
+                yield Input(
+                    value=self.config.tasklist_file,
+                    id="tasklist-input",
+                    placeholder="Path to tasklist file",
+                )
+
+            # One-off prompt input
+            yield Label("One-off Prompt:", id="oneoff-label")
+            yield TextArea(
+                self.config.oneoff_prompt, id="oneoff-input", show_line_numbers=False
             )
-            yield RadioButton(
-                "One-off Prompt",
-                id="mode-oneoff",
-                value=(self.config.task_mode == "oneoff"),
+
+
+        with Horizontal(classes="backpressure-row"):
+            yield Label("Backpressure:", classes="section-subtitle")
+            yield Checkbox(
+                value=self.config.backpressure_enabled,
+                id="backpressure-checkbox",
             )
-
-        # Tasklist input
-        with Horizontal(id="tasklist-input-row"):
-            yield Label("Tasklist File:", id="tasklist-label")
-            yield Input(
-                value=self.config.tasklist_file,
-                id="tasklist-input",
-                placeholder="Path to tasklist file",
-            )
-
-        # One-off prompt input
-        yield Label("One-off Prompt:", id="oneoff-label")
-        yield TextArea(
-            self.config.oneoff_prompt, id="oneoff-input", show_line_numbers=False
-        )
-
-        yield Label("Backpressure", classes="section-subtitle")
-
-        yield Checkbox(
-            value=self.config.backpressure_enabled,
-            id="backpressure-checkbox",
-        )
 
         # Loop Config
         with Horizontal(classes="loop-config-row"):

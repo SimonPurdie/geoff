@@ -96,3 +96,25 @@ async def test_reset_updates_ui(mock_config_manager):
         )
         assert "IMPORTANT:" in preview_text_after
         assert "study docs/PLAN.md" in preview_text_after
+
+
+@pytest.mark.asyncio
+async def test_theme_persistence_and_reactivity(mock_config_manager, tmp_path):
+    from geoff.app import GeoffApp
+
+    app = GeoffApp()
+    async with app.run_test(size=(120, 80)) as pilot:
+        # Initial theme
+        assert app.theme == "textual-dark"
+
+        # Change theme
+        app.theme = "dracula"
+        await pilot.pause()
+
+        # Check if config was updated and saved
+        assert app.prompt_config.theme == "dracula"
+        mock_config_manager.save_repo_config.assert_called()
+
+        # Verify it's saved to the actual config object passed to the mock
+        saved_config = mock_config_manager.save_repo_config.call_args[0][0]
+        assert saved_config.theme == "dracula"

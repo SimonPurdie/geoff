@@ -17,26 +17,16 @@ from geoff.widgets.error_modal import ErrorModal
 
 class GeoffApp(App):
     CSS = """
-    $geoff-primary: #3b82f6;
-    $geoff-secondary: #64748b;
-    $geoff-accent: #8b5cf6;
-    $geoff-success: #22c55e;
-    $geoff-warning: #f59e0b;
-    $geoff-error: #ef4444;
-    $geoff-panel-bg: #1e293b;
-    $geoff-border: #475569;
-    $geoff-text: #f1f5f9;
-    $geoff-text-muted: #94a3b8;
-
     Screen {
         layout: vertical;
-        background: #0f172a;
+        background: $surface;
     }
 
     #main-body {
         layout: vertical;
         height: 1fr;
-        background: #0f172a;
+        background: $surface;
+        padding: 1;
     }
 
     #top-row {
@@ -45,9 +35,9 @@ class GeoffApp(App):
     }
 
     #bottom-panel {
-        height: 8;
-        border-top: solid $geoff-border;
-        background: #0f172a;
+        height: 10;
+        background: $background;
+        border-top: solid $primary-background;
     }
 
     #actions {
@@ -55,25 +45,21 @@ class GeoffApp(App):
     }
 
     .section-title {
-        color: $geoff-primary;
+        color: $primary;
         text-style: bold;
         margin-bottom: 1;
-    }
-
-    .widget-panel {
-        border: solid $geoff-border;
-        padding: 1;
-        background: $geoff-panel-bg;
     }
 
     #study-docs {
         width: 1fr;
         height: 1fr;
+        margin-right: 1;
     }
 
     #task-source {
         width: 1fr;
         height: 1fr;
+        margin-left: 1;
     }
     """
 
@@ -97,15 +83,24 @@ class GeoffApp(App):
 
     def on_mount(self) -> None:
         self.title = "GEOFF - Prompt Constructor"
+        self.theme = self.prompt_config.theme
+        self.watch(self, "theme", self._update_theme_config, init=False)
+
+    def _update_theme_config(self, theme: str) -> None:
+        """Update the config when the theme changes."""
+        self.prompt_config.theme = theme
+        self._save_config()
 
     @on(ConfigUpdated)
     def handle_config_updated(self) -> None:
         """Handle config updates from child widgets."""
+        self.prompt_config.theme = self.theme
         self.query_one(PromptPreviewWidget).update_prompt()
         self._save_config()
 
     def _save_config(self) -> None:
         """Auto-save config to repo-local .geoff/geoff.yaml."""
+        self.prompt_config.theme = self.theme
         try:
             self.config_manager.save_repo_config(self.prompt_config)
         except Exception as e:
@@ -158,6 +153,7 @@ class GeoffApp(App):
             repo_config_path.unlink()
 
         self.prompt_config = self.config_manager.resolve_config()
+        self.theme = self.prompt_config.theme
 
         # Update all widgets
         await self.query_one(StudyDocsWidget).update_from_config(self.prompt_config)

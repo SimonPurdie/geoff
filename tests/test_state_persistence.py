@@ -103,6 +103,16 @@ class TestStatePersistence:
         assert loaded.tasklist_file == "path/to/file with spaces.md"
         assert loaded.breadcrumbs_file == "some file.md"
 
+    def test_save_config_persists_theme(self, tmp_path):
+        """Test that the theme is persisted in the config."""
+        cm = ConfigManager(working_dir=tmp_path)
+        config = PromptConfig(theme="monokai")
+
+        cm.save_repo_config(config)
+
+        loaded = cm.resolve_config()
+        assert loaded.theme == "monokai"
+
 
 class TestResetFunctionality:
     """Test cases for reset to defaults functionality."""

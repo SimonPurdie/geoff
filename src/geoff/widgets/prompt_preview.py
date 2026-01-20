@@ -6,27 +6,16 @@ from geoff.prompt_builder import build_prompt
 
 class PromptPreviewWidget(VerticalScroll):
     DEFAULT_CSS = """
-    $geoff-primary: #3b82f6;
-    $geoff-secondary: #64748b;
-    $geoff-accent: #8b5cf6;
-    $geoff-success: #22c55e;
-    $geoff-warning: #f59e0b;
-    $geoff-error: #ef4444;
-    $geoff-panel-bg: #1e293b;
-    $geoff-border: #475569;
-    $geoff-text: #f1f5f9;
-    $geoff-text-muted: #94a3b8;
-
     PromptPreviewWidget {
         layout: vertical;
         height: 100%;
-        background: #0f172a;
+        background: $background;
         overflow-y: scroll;
     }
 
     PromptPreviewWidget Static {
         padding: 1;
-        color: $geoff-text-muted;
+        color: $text-muted;
     }
     """
 
