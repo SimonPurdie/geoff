@@ -180,3 +180,16 @@ The application will transition from a `Horizontal` split (Left Panel + Right Sp
   - `test_toolbar_all_buttons_have_ids`: Tests all buttons have correct IDs
   - `test_toolbar_all_buttons_fire_messages`: Tests all buttons fire their respective messages
 
+### Task 7: Property-Based Tests for ErrorModal - COMPLETED
+- **Date:** 2026-01-20
+- **Changes:**
+  - Added 5 new Hypothesis property-based tests for ErrorModal
+  - Tests cover: initialization with various error list sizes, rendering all errors, error count verification, dismiss behavior, and OK button existence
+  - All 171 tests pass (5 new tests added to existing 166)
+- **Tests:**
+  - `test_error_modal_property_init_with_various_errors`: Tests modal initialization with various error list sizes (0-10 errors)
+  - `test_error_modal_property_renders_all_errors`: Tests that all errors are rendered with printable ASCII characters
+  - `test_error_modal_property_error_count`: Tests error count matches the number of errors (1-20)
+  - `test_error_modal_property_dismiss_behavior`: Tests dismiss behavior on OK button click
+  - `test_error_modal_property_ok_button_exists`: Tests OK button exists and has correct label
+
