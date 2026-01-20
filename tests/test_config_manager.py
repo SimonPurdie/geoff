@@ -276,3 +276,130 @@ def test_base_prompt_strings_lines_loaded_from_global_property(
     config = cm.resolve_config()
 
     assert config.prompt_backpressure_lines == prompt_backpressure_lines
+
+
+def test_oneoff_prompt_preserved_in_global_config(tmp_path):
+    """Test that oneoff_prompt set by user in global config is preserved."""
+    cm = ConfigManager(working_dir=tmp_path)
+    global_path = tmp_path / "global.yaml"
+    cm.global_config_path = global_path
+
+    user_oneoff_prompt = "This is my custom one-off prompt"
+    save_yaml(
+        global_path,
+        {
+            "task_mode": "oneoff",
+            "oneoff_prompt": user_oneoff_prompt,
+        },
+    )
+
+    config = cm.resolve_config()
+
+    assert config.task_mode == "oneoff"
+    assert config.oneoff_prompt == user_oneoff_prompt
+
+    loaded = load_yaml(global_path)
+    assert loaded.get("oneoff_prompt") == user_oneoff_prompt
+    assert loaded.get("task_mode") == "oneoff"
+
+
+def test_non_base_keys_preserved_during_materialization(tmp_path):
+    """Test that non-base keys in global config are preserved when materializing defaults."""
+    cm = ConfigManager(working_dir=tmp_path)
+    global_path = tmp_path / "global.yaml"
+    cm.global_config_path = global_path
+
+    save_yaml(
+        global_path,
+        {
+            "max_iterations": 42,
+            "task_mode": "oneoff",
+            "oneoff_prompt": "my custom prompt",
+        },
+    )
+
+    config = cm.resolve_config()
+
+    assert config.max_iterations == 42
+    assert config.oneoff_prompt == "my custom prompt"
+
+    loaded = load_yaml(global_path)
+    assert loaded.get("max_iterations") == 42
+    assert loaded.get("oneoff_prompt") == "my custom prompt"
+    assert loaded.get("task_mode") == "oneoff"
+
+
+def test_resolve_config_with_empty_repo_preserves_global(tmp_path):
+    """Test that global config values are preserved when repo config is empty/deleted."""
+    cm = ConfigManager(working_dir=tmp_path)
+    global_path = tmp_path / "global.yaml"
+    cm.global_config_path = global_path
+
+    save_yaml(
+        global_path,
+        {
+            "task_mode": "oneoff",
+            "oneoff_prompt": "User's custom oneoff prompt",
+            "max_iterations": 100,
+        },
+    )
+
+    config = cm.resolve_config()
+
+    assert config.task_mode == "oneoff"
+    assert config.oneoff_prompt == "User's custom oneoff prompt"
+    assert config.max_iterations == 100
+
+
+def test_multiple_resolve_config_calls_preserve_global(tmp_path):
+    """Test that multiple calls to resolve_config don't corrupt global config."""
+    cm = ConfigManager(working_dir=tmp_path)
+    global_path = tmp_path / "global.yaml"
+    cm.global_config_path = global_path
+
+    save_yaml(
+        global_path,
+        {
+            "task_mode": "oneoff",
+            "oneoff_prompt": "My persistent prompt",
+        },
+    )
+
+    for _ in range(5):
+        config = cm.resolve_config()
+        assert config.oneoff_prompt == "My persistent prompt"
+
+    loaded = load_yaml(global_path)
+    assert loaded.get("oneoff_prompt") == "My persistent prompt"
+    assert loaded.get("task_mode") == "oneoff"
+
+
+def test_reset_scenario_with_global_oneoff_prompt(tmp_path):
+    """Test the reset scenario: repo deleted, global has oneoff_prompt."""
+    cm = ConfigManager(working_dir=tmp_path)
+    global_path = tmp_path / "global.yaml"
+    cm.global_config_path = global_path
+
+    repo_path = tmp_path / ".geoff" / "geoff.yaml"
+
+    save_yaml(
+        global_path,
+        {
+            "task_mode": "oneoff",
+            "oneoff_prompt": "This should persist after reset",
+        },
+    )
+    save_yaml(repo_path, {"max_iterations": 5})
+
+    assert repo_path.exists()
+
+    repo_path.unlink()
+
+    config = cm.resolve_config()
+
+    assert config.task_mode == "oneoff"
+    assert config.oneoff_prompt == "This should persist after reset"
+
+    loaded = load_yaml(global_path)
+    assert loaded.get("oneoff_prompt") == "This should persist after reset"
+    assert loaded.get("task_mode") == "oneoff"

@@ -61,10 +61,17 @@ class ConfigManager:
             if key not in user_conf:
                 to_materialize[key] = resolved_base[key]
 
-        if to_materialize:
-            merged = user_conf.copy()
-            merged.update(to_materialize)
+        if not to_materialize:
+            return
+
+        if not user_conf:
+            merged = to_materialize
             save_yaml(self.global_config_path, merged)
+            return
+
+        merged = user_conf.copy()
+        merged.update(to_materialize)
+        save_yaml(self.global_config_path, merged)
 
     def resolve_config(self) -> PromptConfig:
         defaults = asdict(self.get_builtin_defaults())
