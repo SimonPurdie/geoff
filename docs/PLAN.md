@@ -21,7 +21,7 @@
 - [x] 17. Opencode execution layer
 - [x] 18. Loop execution harness
 - [x] 19. Error modal dialogs
-- [ ] 22. Polish and UX refinement
+- [x] 22. Property-based tests for prompt builder
 
 ---
 

@@ -1,5 +1,10 @@
 # Breadcrumbs
 
+- **Task 23 (Property-based Tests):** Added `tests/test_prompt_builder_property.py` with 11 Hypothesis-based property tests covering prompt assembly invariants. Key lessons:
+  - Use `st.sampled_from` with specific alphabets instead of raw `st.text()` to avoid generating strings with control characters that get stripped
+  - Property tests revealed that the prompt builder correctly filters empty/whitespace-only inputs
+  - Tests cover: order preservation, mode exclusivity, backpressure content, breadcrumb formatting, no empty lines, and crash resilience
+
 - **Task 19 (Error Modal Dialogs):** Implemented ErrorModal widget as a ModalScreen that displays validation errors. When testing ModalScreen widgets, I found that they aren't queryable via `app.query_one()` when pushed to the screen stack. Instead, I had to access modals through `app.screen_stack[-1]` to verify their content and state. Also discovered that `Static.render()` returns the content object (not `renderable`), which should be cast to `str` for assertions. The modal's presence can be verified by checking `len(app.screen_stack) > 1`.
 
 - **Task 22 (Executor Implementation):** Implemented Opencode execution layer (Items 17-18) by creating `src/geoff/executor.py` with `execute_opencode_once()` and `execute_opencode_loop()` functions. The loop harness includes change detection using git HEAD hash (with fallback to directory content hashing), stuck iteration detection, and configurable max_iterations and max_stuck parameters. Wrote 22 unit tests in `tests/test_executor.py` covering all executor functionality. Updated `app.py` to use the executor for Run Once and Run Loop actions.
