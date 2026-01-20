@@ -1,4 +1,5 @@
 import pytest
+from hypothesis import given, settings, strategies as st
 from textual.app import App, ComposeResult
 from textual.widgets import Input, Label
 from geoff.config import PromptConfig
@@ -98,3 +99,104 @@ async def test_loop_config_validation():
         await pilot.pause()
 
         assert config.max_iterations == 0
+
+
+@given(
+    max_iterations=st.integers(min_value=0, max_value=1000),
+    max_stuck=st.integers(min_value=0, max_value=100),
+)
+@settings(max_examples=20)
+@pytest.mark.asyncio
+async def test_loop_config_property_initial_values(max_iterations, max_stuck):
+    config = PromptConfig(max_iterations=max_iterations, max_stuck=max_stuck)
+    app = LoopConfigApp(config)
+
+    async with app.run_test() as pilot:
+        widget = app.query_one(LoopConfigWidget)
+        max_iter_input = widget.query_one("#max-iterations", Input)
+        max_stuck_input = widget.query_one("#max-stuck", Input)
+
+        assert max_iter_input.value == str(max_iterations)
+        assert max_stuck_input.value == str(max_stuck)
+
+
+@given(
+    max_iterations=st.integers(min_value=0, max_value=1000),
+)
+@settings(max_examples=20)
+@pytest.mark.asyncio
+async def test_infinity_indicator_property(max_iterations):
+    config = PromptConfig(max_iterations=max_iterations, max_stuck=2)
+    app = LoopConfigApp(config)
+
+    async with app.run_test() as pilot:
+        widget = app.query_one(LoopConfigWidget)
+        indicator = widget.query_one("#infinity-indicator", Label)
+
+        if max_iterations == 0:
+            assert "hidden" not in indicator.classes
+            assert indicator.display is True
+        else:
+            assert "hidden" in indicator.classes
+
+
+@given(
+    max_iterations=st.integers(min_value=0, max_value=500),
+    new_max_iterations=st.integers(min_value=0, max_value=500),
+)
+@settings(max_examples=15)
+@pytest.mark.asyncio
+async def test_loop_config_updates_property(max_iterations, new_max_iterations):
+    config = PromptConfig(max_iterations=max_iterations, max_stuck=2)
+    app = LoopConfigApp(config)
+
+    async with app.run_test() as pilot:
+        widget = app.query_one(LoopConfigWidget)
+        max_iter_input = widget.query_one("#max-iterations", Input)
+
+        max_iter_input.value = str(new_max_iterations)
+        await pilot.pause()
+
+        assert config.max_iterations == new_max_iterations
+
+
+@given(
+    initial_max_iterations=st.integers(min_value=0, max_value=100),
+    new_max_stuck=st.integers(min_value=0, max_value=50),
+)
+@settings(max_examples=15)
+@pytest.mark.asyncio
+async def test_max_stuck_updates_property(initial_max_iterations, new_max_stuck):
+    config = PromptConfig(max_iterations=initial_max_iterations, max_stuck=2)
+    app = LoopConfigApp(config)
+
+    async with app.run_test() as pilot:
+        max_stuck_input = app.query_one("#max-stuck", Input)
+
+        max_stuck_input.value = str(new_max_stuck)
+        await pilot.pause()
+
+        assert config.max_stuck == new_max_stuck
+
+
+@given(
+    max_iterations=st.integers(min_value=0, max_value=100),
+    max_stuck=st.integers(min_value=0, max_value=100),
+)
+@settings(max_examples=15)
+@pytest.mark.asyncio
+async def test_update_from_config_property(max_iterations, max_stuck):
+    config = PromptConfig(max_iterations=0, max_stuck=0)
+    app = LoopConfigApp(config)
+
+    async with app.run_test() as pilot:
+        widget = app.query_one(LoopConfigWidget)
+
+        new_config = PromptConfig(max_iterations=max_iterations, max_stuck=max_stuck)
+        widget.update_from_config(new_config)
+
+        max_iter_input = widget.query_one("#max-iterations", Input)
+        max_stuck_input = widget.query_one("#max-stuck", Input)
+
+        assert max_iter_input.value == str(max_iterations)
+        assert max_stuck_input.value == str(max_stuck)
