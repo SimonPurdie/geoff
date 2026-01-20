@@ -32,3 +32,10 @@
 
 - **Widget Config Object Handling (Task 25):**
   - The `update_from_config()` method in widgets like TaskSourceWidget replaces the widget's internal config object (`self.config = config`) rather than updating a shared config. Tests checking config state should query `widget.config` instead of the original config object passed to the app.
+
+- **Syntax Error in Test Files (Current Task):**
+  - When running pytest, discovered a pre-existing syntax error in `test_prompt_preview_widget.py` (line 237): `else:` without a corresponding `if` statement. Fixed by changing to `elif task_mode == "oneoff":` to properly handle the task mode conditional logic.
+
+- **Hypothesis Function-Scoped Fixture Health Check:**
+  - Property-based tests using `@given` with pytest fixtures like `tmp_path` trigger a `FailedHealthCheck` for function-scoped fixtures. Suppress this by adding `suppress_health_check=[HealthCheck.function_scoped_fixture]` to the `@settings()` decorator.
+  - Example: `@settings(max_examples=30, suppress_health_check=[HealthCheck.function_scoped_fixture])`
