@@ -9,10 +9,9 @@ class ToolbarWidget(Static):
     ToolbarWidget {
         layout: horizontal;
         height: auto;
-        padding: 1;
+        padding: 0 1;
         align: center middle;
         background: $surface;
-        border-top: solid $primary-background;
     }
 
     ToolbarWidget Button {

@@ -40,7 +40,7 @@ class StudyDocsWidget(Static):
 
     StudyDocsWidget .doc-row {
         layout: horizontal;
-        height: auto;
+        height: 1;
         align-vertical: middle;
         margin-bottom: 1;
     }
@@ -58,19 +58,29 @@ class StudyDocsWidget(Static):
         text-style: underline;
     }
 
-    StudyDocsWidget .remove-btn {
-        width: 4;
-        min-width: 4;
-        margin-left: 1;
-        background: $error;
-        color: $text;
-        border: none;
-        height: 1;
+    StudyDocsWidget Button.remove-btn {
+        width: 3 !important;
+        min-width: 0 !important;
+        height: 1 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        margin-left: 1 !important;
+        padding: 0 !important;
+        background: transparent !important;
+        color: $error !important;
+        border: none !important;
+        text-style: bold;
     }
 
-    StudyDocsWidget .remove-btn:hover {
-        background: $error-darken-1;
-        color: $text;
+    StudyDocsWidget Button.remove-btn:hover {
+        background: $error !important;
+        color: $text !important;
+    }
+
+    StudyDocsWidget Button.remove-btn:focus {
+        background: transparent !important;
+        color: $error !important;
+        text-style: bold underline;
     }
 
     StudyDocsWidget #add-doc-btn {
@@ -80,6 +90,7 @@ class StudyDocsWidget(Static):
         color: $primary;
         border: none;
         height: 1;
+        min-height: 0;
         width: auto;
         min-width: 10;
         padding: 0;
@@ -104,8 +115,6 @@ class StudyDocsWidget(Static):
     StudyDocsWidget #breadcrumbs-input-row {
         height: auto;
         align-vertical: middle;
-        padding-top: 1;
-        border-top: solid $primary-background;
         margin-top: 1;
     }
 

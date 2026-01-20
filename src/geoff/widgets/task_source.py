@@ -101,15 +101,6 @@ class TaskSourceWidget(Static):
         color: $text-muted;
     }
 
-    /* Loop Config Styles */
-    TaskSourceWidget .loop-config-row {
-        height: auto;
-        align-vertical: middle;
-        margin-top: 1;
-        padding-top: 1;
-        border-top: solid $primary-background;
-    }
-    
     TaskSourceWidget .loop-config-row Label {
         margin-right: 1;
     }
@@ -156,20 +147,9 @@ class TaskSourceWidget(Static):
     TaskSourceWidget .backpressure-row {
         height: auto;
         align-vertical: middle;
-        padding-top: 1;
-        border-top: solid $primary-background;
         margin-top: 1;
     }
 
-    TaskSourceWidget .section-subtitle {
-        color: $text-muted;
-        text-style: bold;
-        margin: 0;
-        margin-right: 1;
-        width: auto;
-    }
-
-    /* Loop Config Styles */
     TaskSourceWidget .loop-config-row {
         height: auto;
         align-vertical: middle;
@@ -181,6 +161,7 @@ class TaskSourceWidget(Static):
         text-style: bold;
         margin: 0;
         margin-right: 1;
+        width: auto;
     }
     """
 
@@ -219,7 +200,6 @@ class TaskSourceWidget(Static):
             yield TextArea(
                 self.config.oneoff_prompt, id="oneoff-input", show_line_numbers=False
             )
-
 
         with Horizontal(classes="backpressure-row"):
             yield Label("Backpressure:", classes="section-subtitle")
