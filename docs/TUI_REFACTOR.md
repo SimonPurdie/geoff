@@ -144,3 +144,21 @@ The application will transition from a `Horizontal` split (Left Panel + Right Sp
   - `test_prompt_preview_breadcrumb_update`: Tests breadcrumb toggle updates the preview correctly
   - `test_prompt_preview_task_mode_switch`: Tests task mode (tasklist/oneoff) affects preview content
   - `test_prompt_preview_mode_toggle`: Tests mode switching updates the preview content
+
+### Task 5: Property-Based Tests for PromptValidator - COMPLETED
+- **Date:** 2026-01-20
+- **Changes:**
+  - Added 11 new Hypothesis property-based tests for PromptValidator
+  - Tests cover validation of study docs, breadcrumbs, tasklist files, one-off prompts, max iterations, max stuck, and is_valid method
+  - All 157 tests pass (11 new tests added to existing 146)
+- **Tests:**
+  - `test_valid_config_with_positive_iterations`: Tests validation with various valid max_iterations and max_stuck values
+  - `test_empty_study_doc_errors`: Tests that empty study doc paths produce errors
+  - `test_nonexistent_study_doc_files`: Tests that nonexistent study doc files produce errors
+  - `test_breadcrumb_file_existence`: Tests breadcrumb file validation (empty path when enabled, nonexistent file)
+  - `test_tasklist_file_existence`: Tests tasklist file validation (empty path when enabled, nonexistent file)
+  - `test_oneoff_prompt_validation`: Tests one-off prompt validation (empty/whitespace vs valid)
+  - `test_max_iterations_validation`: Tests max_iterations must be >= 0
+  - `test_max_stuck_validation`: Tests max_stuck must be >= 0
+  - `test_is_valid_matches_validate`: Tests that is_valid() matches validate() results
+  - `test_empty_study_doc_list_valid`: Tests that empty study doc list is valid
