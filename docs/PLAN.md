@@ -17,7 +17,7 @@
 - [x] 13. Action toolbar
 - [x] 14. Effective Prompt preview panel
 - [x] 15. Validation system
-- [ ] 16. Clipboard integration
+- [x] 16. Clipboard integration
 - [ ] 17. Opencode execution layer
 - [ ] 18. Loop execution harness
 - [ ] 19. Error modal dialogs

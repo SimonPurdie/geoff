@@ -1,5 +1,7 @@
 # Breadcrumbs
 
+- **Task 16 (Clipboard Integration):** Successfully implemented clipboard integration with validation. The `copy_to_clipboard()` function uses `pyperclip.copy()` and returns a boolean indicating success. The Copy Prompt handler validates the config first, builds the prompt, then copies it to clipboard. Validation failures show as error notifications. Textual's `notify()` method uses severity levels `information`, `warning`, and `error` (not `success`).
+
 - **Task 15 (Validation System):** When testing with default PromptConfig values, the default `study_docs=["docs/SPEC.md"]`, `task_mode="tasklist"`, and `breadcrumb_enabled=True` mean validation will fail for missing files even if you're only testing a specific feature. Tests should either:
   1. Create all necessary files in the tmp_path, OR
   2. Disable features and use one-off mode with empty lists for study_docs to isolate the test case
