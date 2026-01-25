@@ -39,3 +39,9 @@
 - **Hypothesis Function-Scoped Fixture Health Check:**
   - Property-based tests using `@given` with pytest fixtures like `tmp_path` trigger a `FailedHealthCheck` for function-scoped fixtures. Suppress this by adding `suppress_health_check=[HealthCheck.function_scoped_fixture]` to the `@settings()` decorator.
   - Example: `@settings(max_examples=30, suppress_health_check=[HealthCheck.function_scoped_fixture])`
+
+- **Breadcrumb File Auto-Creation (Current Task):**
+  - Modified `PromptValidator` to automatically create blank breadcrumb files instead of erroring when they're missing.
+  - Only applies to breadcrumb files - other missing files (study docs, tasklists) still error as before.
+  - File creation includes proper parent directory creation and error handling for invalid paths or permission issues.
+  - Tests updated to verify new behavior: missing breadcrumb files are created and valid, while invalid paths still generate errors.

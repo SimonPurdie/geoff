@@ -26,9 +26,21 @@ class PromptValidator:
                 )
             else:
                 breadcrumbs_path = self.execution_dir / config.breadcrumbs_file
-                if not breadcrumbs_path.exists():
+                try:
+                    if not breadcrumbs_path.exists():
+                        # Check if filename is valid before creating
+                        try:
+                            # Validate the filename by attempting to create the path
+                            breadcrumbs_path.parent.mkdir(parents=True, exist_ok=True)
+                            breadcrumbs_path.write_text("")
+                        except (OSError, ValueError, PermissionError) as e:
+                            errors.append(
+                                f"Invalid breadcrumbs file path: {config.breadcrumbs_file}"
+                            )
+                except (OSError, PermissionError):
+                    # Can't even check if file exists due to permissions
                     errors.append(
-                        f"Breadcrumbs file not found: {config.breadcrumbs_file}"
+                        f"Invalid breadcrumbs file path: {config.breadcrumbs_file}"
                     )
 
         if config.task_mode == "tasklist":

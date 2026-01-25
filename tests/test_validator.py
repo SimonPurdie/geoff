@@ -64,7 +64,12 @@ class TestValidateBreadcrumbs:
             study_docs=[],
         )
         errors = validator.validate(config)
-        assert "Breadcrumbs file not found: missing.md" in errors
+        # Should not error - should create blank file instead
+        assert len(errors) == 0
+        # Verify the file was created
+        breadcrumbs_path = validator.execution_dir / "missing.md"
+        assert breadcrumbs_path.exists()
+        assert breadcrumbs_path.read_text() == ""
 
     def test_existing_breadcrumbs_file(self, validator):
         existing_file = validator.execution_dir / "existing.md"
@@ -83,6 +88,21 @@ class TestValidateBreadcrumbs:
         config = PromptConfig(breadcrumb_enabled=False, breadcrumbs_file="")
         errors = validator.validate(config)
         assert not any("empty" in e.lower() for e in errors)
+
+    def test_invalid_breadcrumbs_filename(self, validator):
+        # Test with a path that would cause permission issues
+        # Using a path that tries to write to root directory which should fail
+        config = PromptConfig(
+            breadcrumb_enabled=True,
+            breadcrumbs_file="/root/forbidden.md",  # Should fail due to permissions
+            task_mode="oneoff",
+            oneoff_prompt="test",
+            study_docs=[],
+        )
+        errors = validator.validate(config)
+        # Should error because can't create file in root directory
+        assert len(errors) > 0
+        assert any("invalid" in e.lower() or "failed" in e.lower() for e in errors)
 
 
 class TestValidateTaskSourceTasklist:
