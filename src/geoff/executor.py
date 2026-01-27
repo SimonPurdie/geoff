@@ -26,26 +26,60 @@ def compute_repo_hash(exec_dir: Optional[Path] = None) -> str:
         )
 
         # Get HEAD commit hash
-        head_result = subprocess.run(
-            ["git", "rev-parse", "HEAD"],
-            cwd=cwd,
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        head_hash = head_result.stdout.strip()
+        head_hash = ""
+        try:
+            head_result = subprocess.run(
+                ["git", "rev-parse", "HEAD"],
+                cwd=cwd,
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            head_hash = head_result.stdout.strip()
+        except subprocess.CalledProcessError:
+            # Handle empty repository with no commits
+            head_hash = "no-head"
 
         # Get working tree status (staged, unstaged, untracked)
+        # Use -z for machine-readable output without quoting issues
         status_result = subprocess.run(
-            ["git", "status", "--porcelain"],
+            ["git", "status", "--porcelain", "-z"],
             cwd=cwd,
             capture_output=True,
             text=True,
             check=True,
         )
-        status = status_result.stdout
+        status_raw = status_result.stdout
 
-        combined = f"{head_hash}\n{status}"
+        hash_input = [head_hash, status_raw]
+
+        # Include mtime and size for all files mentioned in status
+        # to detect content changes in modified/untracked files.
+        # Format for -z is XY PATH\0 (or XY DEST\0SOURCE\0 for renames)
+        parts = status_raw.split("\x00")
+        i = 0
+        while i < len(parts):
+            part = parts[i]
+            if not part:
+                i += 1
+                continue
+
+            if len(part) > 3:
+                path_str = part[3:]
+                fpath = cwd / path_str
+                try:
+                    if fpath.exists():
+                        st = fpath.stat()
+                        hash_input.append(f"{path_str}:{st.st_mtime}:{st.st_size}")
+                except OSError:
+                    pass
+
+            # If rename (R) or copy (C), the next NUL-terminated part is the source path
+            if part[0] in "RC":
+                i += 1
+            i += 1
+
+        combined = "\n".join(hash_input)
         return hashlib.sha256(combined.encode()).hexdigest()[:16]
     except (subprocess.CalledProcessError, FileNotFoundError):
         pass
