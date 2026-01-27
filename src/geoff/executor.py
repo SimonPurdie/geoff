@@ -102,7 +102,9 @@ def compute_repo_hash(exec_dir: Optional[Path] = None) -> str:
     return hashlib.sha256(combined.encode()).hexdigest()[:16]
 
 
-def execute_opencode_once(prompt: str, exec_dir: Optional[Path] = None) -> None:
+def execute_opencode_once(
+    prompt: str, exec_dir: Optional[Path] = None, model: Optional[str] = None
+) -> None:
     """Execute Opencode once with the given prompt.
 
     Exits the TUI cleanly and runs the prompt through Opencode.
@@ -113,7 +115,10 @@ def execute_opencode_once(prompt: str, exec_dir: Optional[Path] = None) -> None:
     """
     cwd = exec_dir or Path.cwd()
 
-    cmd = ["opencode", "run", prompt, "--log-level", "INFO"]
+    cmd = ["opencode", "run"]
+    if model and model != "default":
+        cmd.extend(["-m", model])
+    cmd.extend([prompt, "--log-level", "INFO"])
 
     try:
         subprocess.run(cmd, cwd=cwd, check=False)
@@ -133,6 +138,7 @@ def execute_opencode_loop(
     max_stuck: int = 2,
     max_frozen: int = 0,
     exec_dir: Optional[Path] = None,
+    model: Optional[str] = None,
 ) -> None:
     """Execute Opencode in a loop with change detection.
 
@@ -165,7 +171,10 @@ def execute_opencode_loop(
 
             print(f"\n--- Iteration {iteration} ---")
 
-            cmd = ["opencode", "run", prompt, "--log-level", "INFO"]
+            cmd = ["opencode", "run"]
+            if model and model != "default":
+                cmd.extend(["-m", model])
+            cmd.extend([prompt, "--log-level", "INFO"])
 
             if max_frozen > 0:
                 _run_opencode_with_frozen_timeout(

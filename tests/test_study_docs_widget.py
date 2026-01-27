@@ -1,7 +1,7 @@
 import pytest
 from hypothesis import given, settings, strategies as st
 from textual.app import App, ComposeResult
-from textual.widgets import Input, Checkbox
+from textual.widgets import Input, Checkbox, Select
 from textual.containers import Vertical
 from geoff.config import PromptConfig
 from geoff.widgets.study_docs import StudyDocsWidget, DocRow
@@ -13,6 +13,12 @@ def filepath_strategy(min_size=1, max_size=50):
         min_size=min_size, max_size=max_size, alphabet=st.sampled_from(list(alphabet))
     )
 
+
+def model_strategy(min_size=1, max_size=50):
+    alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-./"
+    return st.text(
+        min_size=min_size, max_size=max_size, alphabet=st.sampled_from(list(alphabet))
+    )
 
 class StudyDocsApp(App):
     CSS = """
@@ -30,16 +36,18 @@ class StudyDocsApp(App):
 
 @given(
     study_docs=st.lists(filepath_strategy(), max_size=5),
+    model=model_strategy(),
     breadcrumbs_file=filepath_strategy(),
     breadcrumb_enabled=st.booleans(),
 )
 @settings(max_examples=30)
 @pytest.mark.asyncio
 async def test_study_docs_initial_state(
-    study_docs, breadcrumbs_file, breadcrumb_enabled
+    study_docs, model, breadcrumbs_file, breadcrumb_enabled
 ):
     config = PromptConfig(
         study_docs=study_docs,
+        model=model,
         breadcrumbs_file=breadcrumbs_file,
         breadcrumb_enabled=breadcrumb_enabled,
     )
@@ -54,6 +62,9 @@ async def test_study_docs_initial_state(
             input_widget = widget.query_one(f"#doc-input-{i}", Input)
             assert input_widget.value == expected_doc
 
+        model_select = widget.query_one("#model-select", Select)
+        assert model_select.value == model
+
         bc_input = widget.query_one("#breadcrumbs-input", Input)
         assert bc_input.value == breadcrumbs_file
 
@@ -66,14 +77,23 @@ async def test_study_docs_initial_state(
     new_docs=st.lists(filepath_strategy(), max_size=3),
     initial_bc_enabled=st.booleans(),
     new_bc_enabled=st.booleans(),
+    initial_model=model_strategy(),
+    new_model=model_strategy(),
 )
 @settings(max_examples=20)
 @pytest.mark.asyncio
 async def test_study_docs_update_from_config(
-    initial_docs, new_docs, initial_bc_enabled, new_bc_enabled
+    initial_docs,
+    new_docs,
+    initial_bc_enabled,
+    new_bc_enabled,
+    initial_model,
+    new_model,
 ):
     config = PromptConfig(
-        study_docs=initial_docs, breadcrumb_enabled=initial_bc_enabled
+        study_docs=initial_docs,
+        breadcrumb_enabled=initial_bc_enabled,
+        model=initial_model,
     )
     app = StudyDocsApp(config)
 
@@ -81,7 +101,9 @@ async def test_study_docs_update_from_config(
         widget = app.query_one(StudyDocsWidget)
 
         new_config = PromptConfig(
-            study_docs=new_docs, breadcrumb_enabled=new_bc_enabled
+            study_docs=new_docs,
+            breadcrumb_enabled=new_bc_enabled,
+            model=new_model,
         )
         await widget.update_from_config(new_config)
 
@@ -90,6 +112,9 @@ async def test_study_docs_update_from_config(
         for i, expected_doc in enumerate(new_docs):
             input_widget = widget.query_one(f"#doc-input-{i}", Input)
             assert input_widget.value == expected_doc
+
+        model_select = widget.query_one("#model-select", Select)
+        assert model_select.value == new_model
 
         bc_checkbox = widget.query_one("#breadcrumbs-checkbox", Checkbox)
         assert bc_checkbox.value == new_bc_enabled

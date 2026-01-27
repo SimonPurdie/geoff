@@ -230,6 +230,25 @@ class TestExecuteOpencodeOnce:
 
             assert mock_run.call_args[1]["cwd"] == tmp_path
 
+    @patch("geoff.executor.subprocess.run")
+    def test_includes_model_flag_when_specified(self, mock_run, tmp_path):
+        mock_run.return_value = MagicMock()
+
+        execute_opencode_once("prompt", tmp_path, model="openai/gpt-4o")
+
+        cmd = mock_run.call_args[0][0]
+        assert "-m" in cmd
+        assert "openai/gpt-4o" in cmd
+
+    @patch("geoff.executor.subprocess.run")
+    def test_omits_model_flag_when_default(self, mock_run, tmp_path):
+        mock_run.return_value = MagicMock()
+
+        execute_opencode_once("prompt", tmp_path, model="default")
+
+        cmd = mock_run.call_args[0][0]
+        assert "-m" not in cmd
+
 
 class TestExecuteOpencodeLoop:
     """Tests for the execute_opencode_loop function."""
@@ -435,3 +454,20 @@ class TestExecuteOpencodeLoop:
             execute_opencode_loop("prompt")
 
             assert mock_run.call_args[1]["cwd"] == tmp_path
+
+    @patch("geoff.executor.time.sleep")
+    @patch("geoff.executor.compute_repo_hash")
+    @patch("geoff.executor.subprocess.run")
+    def test_loop_includes_model_flag_when_specified(
+        self, mock_run, mock_hash, mock_sleep, tmp_path
+    ):
+        mock_run.return_value = MagicMock()
+        mock_hash.return_value = "same"
+
+        execute_opencode_loop(
+            "prompt", max_iterations=1, max_stuck=2, exec_dir=tmp_path, model="x/y"
+        )
+
+        cmd = mock_run.call_args[0][0]
+        assert "-m" in cmd
+        assert "x/y" in cmd

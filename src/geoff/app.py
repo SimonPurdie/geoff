@@ -125,7 +125,7 @@ class GeoffApp(App):
             return
 
         prompt = build_prompt(self.prompt_config)
-        self.exit(("run_once", prompt))
+        self.exit(("run_once", prompt, self.prompt_config.model))
 
     def on_toolbar_widget_run_loop(self, message: ToolbarWidget.RunLoop) -> None:
         errors = self.validator.validate(self.prompt_config)
@@ -138,6 +138,7 @@ class GeoffApp(App):
             (
                 "run_loop",
                 prompt,
+                self.prompt_config.model,
                 self.prompt_config.max_iterations,
                 self.prompt_config.max_stuck,
                 self.prompt_config.max_frozen,

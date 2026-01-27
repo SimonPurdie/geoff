@@ -5,6 +5,7 @@ from typing import List, Literal
 @dataclass
 class PromptConfig:
     study_docs: List[str] = field(default_factory=lambda: ["docs/SPEC.md"])
+    model: str = "default"
     breadcrumbs_file: str = "docs/BREADCRUMBS.md"
     task_mode: Literal["tasklist", "oneoff"] = "tasklist"
     tasklist_file: str = "docs/PLAN.md"
