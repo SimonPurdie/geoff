@@ -104,7 +104,7 @@ async def test_prompt_preview_initial_state(
         if backpressure_enabled:
             assert "IMPORTANT:" in prompt_content
         else:
-            assert "IMPORTANT:" not in prompt_content
+            assert "- After implementing functionality" not in prompt_content
 
 
 @given(
@@ -158,7 +158,7 @@ async def test_prompt_preview_backpressure_update(
         if initial_backpressure:
             assert "IMPORTANT:" in initial_content
         else:
-            assert "IMPORTANT:" not in initial_content
+            assert "- After implementing functionality" not in initial_content
 
         config.backpressure_enabled = new_backpressure
         widget.update_prompt()
@@ -168,7 +168,7 @@ async def test_prompt_preview_backpressure_update(
         if new_backpressure:
             assert "IMPORTANT:" in updated_content
         else:
-            assert "IMPORTANT:" not in updated_content
+            assert "- After implementing functionality" not in updated_content
 
 
 @given(
@@ -230,13 +230,13 @@ async def test_prompt_preview_task_mode_switch(task_mode, tasklist_file, oneoff_
 
         if task_mode == "tasklist":
             assert (
-                f"study {tasklist_file} and pick the most important thing to do"
+                f"follow {tasklist_file} and choose the most important item to address"
                 in prompt_content
             )
-            assert f"update {tasklist_file} when the task is done" in prompt_content
+            assert f"Update {tasklist_file} when the task is done" in prompt_content
         elif task_mode == "oneoff":
             assert oneoff_prompt.strip() in prompt_content
-            assert "pick the most important thing to do" not in prompt_content
+            assert "choose the most important item to address" not in prompt_content
 
 
 @given(
@@ -267,10 +267,10 @@ async def test_prompt_preview_mode_toggle(
         prompt_content = str(widget.prompt_text.render())
         if new_mode == "tasklist":
             assert (
-                f"study {tasklist_file} and pick the most important thing to do"
+                f"follow {tasklist_file} and choose the most important item to address"
                 in prompt_content
             )
-            assert f"update {tasklist_file} when the task is done" in prompt_content
+            assert f"Update {tasklist_file} when the task is done" in prompt_content
         else:
-            assert "pick the most important thing to do" not in prompt_content
-            assert "update " not in prompt_content
+            assert "choose the most important item to address" not in prompt_content
+            assert "Update " not in prompt_content

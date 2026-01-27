@@ -45,3 +45,7 @@
   - Only applies to breadcrumb files - other missing files (study docs, tasklists) still error as before.
   - File creation includes proper parent directory creation and error handling for invalid paths or permission issues.
   - Tests updated to verify new behavior: missing breadcrumb files are created and valid, while invalid paths still generate errors.
+
+- **Ambiguity in Test Assertions (Task 26):**
+  - Prompt contains "IMPORTANT:" in both the Backpressure section and the Breadcrumb Instruction section.
+  - Tests checking for backpressure absence must assert against specific backpressure lines (e.g., "- After implementing functionality") rather than the "IMPORTANT:" string alone to avoid false positives.

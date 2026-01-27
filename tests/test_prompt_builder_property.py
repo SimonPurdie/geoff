@@ -65,7 +65,11 @@ def test_study_docs_order_preserved(study_docs):
     study_doc_lines = [
         line
         for line in lines
-        if line.startswith("study ") and "pick the most important" not in line
+        if line.startswith("study ")
+        and not any(
+            phrase in line
+            for phrase in ["choose the most important item", "pick the most important"]
+        )
     ]
     extracted_docs = [line.replace("study ", "", 1) for line in study_doc_lines]
 
@@ -85,14 +89,12 @@ def test_backpressure_content_when_enabled(backpressure_enabled, task_mode):
     prompt = build_prompt(config)
 
     if backpressure_enabled:
-        assert "IMPORTANT:" in prompt
-        assert (
-            "- author property based tests or unit tests (whichever is best)" in prompt
-        )
-        assert "- after performing your task run the tests" in prompt
-        assert "- when tests pass, commit to deploy changes" in prompt
+        assert config.prompt_backpressure_header in prompt
+        for line in config.prompt_backpressure_lines:
+            assert line in prompt
     else:
-        assert "IMPORTANT:" not in prompt
+        for line in config.prompt_backpressure_lines:
+            assert line not in prompt
 
 
 @given(
@@ -129,8 +131,11 @@ def test_task_mode_exclusivity(task_mode, tasklist_file, oneoff_prompt):
     )
     prompt = build_prompt(config)
 
-    has_tasklist_line = "pick the most important thing to do" in prompt
-    has_update_line = "update " in prompt
+    has_tasklist_line = (
+        "choose the most important item" in prompt
+        or "pick the most important" in prompt
+    )
+    has_update_line = "Update " in prompt or "update " in prompt
 
     if task_mode == "tasklist":
         assert has_tasklist_line, "Tasklist mode should include tasklist study line"
@@ -187,7 +192,10 @@ def test_tasklist_and_breadcrumb_order(tasklist_file, breadcrumbs_file):
     for i, line in enumerate(lines):
         if line.startswith(f"check {breadcrumbs_file}"):
             check_idx = i
-        if "pick the most important thing to do" in line:
+        if (
+            "choose the most important item" in line
+            or "pick the most important" in line
+        ):
             study_tasklist_idx = i
 
     if check_idx is not None and study_tasklist_idx is not None:

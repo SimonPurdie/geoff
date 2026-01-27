@@ -16,14 +16,37 @@ def compute_repo_hash(exec_dir: Optional[Path] = None) -> str:
     cwd = exec_dir or Path.cwd()
 
     try:
-        result = subprocess.run(
+        # Check if we are in a git repository
+        subprocess.run(
+            ["git", "rev-parse", "--is-inside-work-tree"],
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+
+        # Get HEAD commit hash
+        head_result = subprocess.run(
             ["git", "rev-parse", "HEAD"],
             cwd=cwd,
             capture_output=True,
             text=True,
             check=True,
         )
-        return result.stdout.strip()
+        head_hash = head_result.stdout.strip()
+
+        # Get working tree status (staged, unstaged, untracked)
+        status_result = subprocess.run(
+            ["git", "status", "--porcelain"],
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        status = status_result.stdout
+
+        combined = f"{head_hash}\n{status}"
+        return hashlib.sha256(combined.encode()).hexdigest()[:16]
     except (subprocess.CalledProcessError, FileNotFoundError):
         pass
 

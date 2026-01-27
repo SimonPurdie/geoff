@@ -34,7 +34,7 @@ class TestComputeRepoHash:
 
         result = compute_repo_hash(tmp_path)
 
-        assert len(result) == 40
+        assert len(result) == 16
         assert result.isalnum()
 
     def test_returns_fallback_hash_when_not_in_git_repo(self, tmp_path):
@@ -123,7 +123,54 @@ class TestComputeRepoHash:
 
             result = compute_repo_hash()
 
-            assert len(result) == 40
+            assert len(result) == 16
+
+    def test_hash_changes_on_uncommitted_changes_in_git(self, tmp_path):
+        """Hash should change when a file is modified but not committed in a git repo."""
+        subprocess.run(["git", "init"], cwd=tmp_path, capture_output=True)
+        test_file = tmp_path / "test.txt"
+        test_file.write_text("initial")
+        subprocess.run(["git", "add", "test.txt"], cwd=tmp_path, capture_output=True)
+        subprocess.run(
+            ["git", "commit", "-m", "initial"],
+            cwd=tmp_path,
+            capture_output=True,
+            env={
+                **os.environ,
+                "GIT_AUTHOR_NAME": "test",
+                "GIT_AUTHOR_EMAIL": "test@test.com",
+                "GIT_COMMITTER_NAME": "test",
+                "GIT_COMMITTER_EMAIL": "test@test.com",
+            },
+        )
+
+        hash1 = compute_repo_hash(tmp_path)
+        test_file.write_text("modified")
+        hash2 = compute_repo_hash(tmp_path)
+
+        assert hash1 != hash2
+
+    def test_hash_changes_on_untracked_file_in_git(self, tmp_path):
+        """Hash should change when an untracked file is added to a git repo."""
+        subprocess.run(["git", "init"], cwd=tmp_path, capture_output=True)
+        subprocess.run(
+            ["git", "commit", "--allow-empty", "-m", "initial"],
+            cwd=tmp_path,
+            capture_output=True,
+            env={
+                **os.environ,
+                "GIT_AUTHOR_NAME": "test",
+                "GIT_AUTHOR_EMAIL": "test@test.com",
+                "GIT_COMMITTER_NAME": "test",
+                "GIT_COMMITTER_EMAIL": "test@test.com",
+            },
+        )
+
+        hash1 = compute_repo_hash(tmp_path)
+        (tmp_path / "untracked.txt").write_text("new file")
+        hash2 = compute_repo_hash(tmp_path)
+
+        assert hash1 != hash2
 
 
 class TestExecuteOpencodeOnce:

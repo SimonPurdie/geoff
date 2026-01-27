@@ -42,7 +42,9 @@ async def test_live_preview_updates(mock_config_manager):
         checkbox.value = False
         await pilot.pause()
 
-        assert "IMPORTANT:" not in str(preview_widget.prompt_text.render())
+        assert "- After implementing functionality" not in str(
+            preview_widget.prompt_text.render()
+        )
 
         # 2. Test Task Source Input
         tasklist_input = task_source_widget.query_one("#tasklist-input", Input)
@@ -50,7 +52,7 @@ async def test_live_preview_updates(mock_config_manager):
         tasklist_input.value = "new/plan.md"
         await pilot.pause()
 
-        assert "study new/plan.md" in str(preview_widget.prompt_text.render())
+        assert "follow new/plan.md" in str(preview_widget.prompt_text.render())
 
         # 3. Test One-off prompt
         app.query_one("#mode-oneoff", RadioButton).value = True
@@ -77,8 +79,8 @@ async def test_reset_updates_ui(mock_config_manager):
 
         # Verify preview updated
         preview_text = str(app.query_one(PromptPreviewWidget).prompt_text.render())
-        assert "IMPORTANT:" not in preview_text
-        assert "study modified_plan.md" in preview_text
+        assert "- After implementing functionality" not in preview_text
+        assert "follow modified_plan.md" in preview_text
 
         # Trigger Reset via action instead of click
         from geoff.widgets.toolbar import ToolbarWidget
@@ -95,7 +97,7 @@ async def test_reset_updates_ui(mock_config_manager):
             app.query_one(PromptPreviewWidget).prompt_text.render()
         )
         assert "IMPORTANT:" in preview_text_after
-        assert "study docs/PLAN.md" in preview_text_after
+        assert "follow docs/PLAN.md" in preview_text_after
 
 
 @pytest.mark.asyncio
@@ -105,7 +107,7 @@ async def test_theme_persistence_and_reactivity(mock_config_manager, tmp_path):
     app = GeoffApp()
     async with app.run_test(size=(120, 80)) as pilot:
         # Initial theme
-        assert app.theme == "textual-dark"
+        assert app.theme == "catppuccin-mocha"
 
         # Change theme
         app.theme = "dracula"
