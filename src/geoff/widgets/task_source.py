@@ -210,7 +210,7 @@ class TaskSourceWidget(Static):
 
         # Loop Config
         with Horizontal(classes="loop-config-row"):
-            yield Label("Max iterations:")
+            yield Label("Max Runs:")
             yield Input(
                 str(self.config.max_iterations),
                 id="max-iterations",
@@ -223,10 +223,21 @@ class TaskSourceWidget(Static):
             # Infinity symbol: ∞
             yield Label("∞", id="infinity-indicator")
 
-            yield Label("  Max stuck:")
+            yield Label("  Stuck:")
             yield Input(
                 str(self.config.max_stuck),
                 id="max-stuck",
+                classes="small-input",
+                validators=[
+                    Number(minimum=0),
+                    Function(lambda v: v.isdigit(), "Must be an integer"),
+                ],
+            )
+
+            yield Label("  Frozen:")
+            yield Input(
+                str(self.config.max_frozen),
+                id="max-frozen",
                 classes="small-input",
                 validators=[
                     Number(minimum=0),
@@ -295,6 +306,16 @@ class TaskSourceWidget(Static):
             except ValueError:
                 pass
 
+    @on(Input.Changed, "#max-frozen")
+    def on_max_frozen_changed(self, event: Input.Changed) -> None:
+        if event.validation_result and event.validation_result.is_valid:
+            try:
+                val = int(event.value)
+                self.config.max_frozen = val
+                self.post_message(ConfigUpdated())
+            except ValueError:
+                pass
+
     def _update_infinity_indicator(self) -> None:
         indicator = self.query_one("#infinity-indicator", Label)
         try:
@@ -320,6 +341,7 @@ class TaskSourceWidget(Static):
         ).value = config.backpressure_enabled
         self.query_one("#max-iterations", Input).value = str(config.max_iterations)
         self.query_one("#max-stuck", Input).value = str(config.max_stuck)
+        self.query_one("#max-frozen", Input).value = str(config.max_frozen)
 
         self.update_visibility()
         self._update_infinity_indicator()

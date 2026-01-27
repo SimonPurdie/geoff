@@ -3,6 +3,7 @@ import sys
 import time
 import hashlib
 import os
+import selectors
 from pathlib import Path
 from typing import Optional
 
@@ -130,6 +131,7 @@ def execute_opencode_loop(
     prompt: str,
     max_iterations: int = 0,
     max_stuck: int = 2,
+    max_frozen: int = 0,
     exec_dir: Optional[Path] = None,
 ) -> None:
     """Execute Opencode in a loop with change detection.
@@ -141,6 +143,7 @@ def execute_opencode_loop(
         prompt: The assembled prompt to execute
         max_iterations: 0 for no limit, otherwise max iterations to run
         max_stuck: Consecutive iterations with no changes before breaking
+        max_frozen: Minutes without output before killing the iteration (0 disables)
         exec_dir: Directory to execute in (defaults to current working directory)
     """
     cwd = exec_dir or Path.cwd()
@@ -150,7 +153,8 @@ def execute_opencode_loop(
     has_changes = True
 
     print(
-        f"Starting loop execution (max_iterations={max_iterations}, max_stuck={max_stuck})"
+        "Starting loop execution (max_iterations="
+        f"{max_iterations}, max_stuck={max_stuck}, max_frozen={max_frozen})"
     )
 
     try:
@@ -163,7 +167,12 @@ def execute_opencode_loop(
 
             cmd = ["opencode", "run", prompt, "--log-level", "INFO"]
 
-            result = subprocess.run(cmd, cwd=cwd, check=False)
+            if max_frozen > 0:
+                _run_opencode_with_frozen_timeout(
+                    cmd, cwd=cwd, max_frozen_minutes=max_frozen
+                )
+            else:
+                subprocess.run(cmd, cwd=cwd, check=False)
 
             curr_hash = compute_repo_hash(cwd)
 
@@ -194,3 +203,66 @@ def execute_opencode_loop(
         sys.exit(1)
 
     print(f"\nLoop terminated after {iteration} iteration(s)")
+
+
+def _run_opencode_with_frozen_timeout(
+    cmd: list[str], cwd: Path, max_frozen_minutes: int
+) -> None:
+    timeout_seconds = max_frozen_minutes * 60
+    last_activity = time.monotonic()
+
+    process = subprocess.Popen(
+        cmd,
+        cwd=cwd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        bufsize=1,
+    )
+
+    if process.stdout is None:
+        process.wait()
+        return
+
+    selector = selectors.DefaultSelector()
+    selector.register(process.stdout, selectors.EVENT_READ)
+    frozen = False
+
+    try:
+        while True:
+            if process.poll() is not None:
+                break
+
+            remaining = timeout_seconds - (time.monotonic() - last_activity)
+            if remaining <= 0:
+                frozen = True
+                break
+
+            events = selector.select(timeout=remaining)
+            if not events:
+                frozen = True
+                break
+
+            for key, _ in events:
+                line = key.fileobj.readline()
+                if line:
+                    last_activity = time.monotonic()
+                    print(line, end="")
+    finally:
+        selector.unregister(process.stdout)
+
+    if frozen:
+        print(
+            f"\nFrozen timeout reached ({max_frozen_minutes} minutes). Terminating iteration."
+        )
+        process.terminate()
+        try:
+            process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait()
+
+    for line in process.stdout:
+        print(line, end="")
+
+    process.stdout.close()

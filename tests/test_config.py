@@ -12,6 +12,7 @@ def test_config_defaults():
     assert config.breadcrumb_enabled is True
     assert config.max_iterations == 0
     assert config.max_stuck == 2
+    assert config.max_frozen == 0
 
 
 def test_config_custom_values():

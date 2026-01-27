@@ -185,6 +185,23 @@ class TestValidateMaxStuck:
         assert not any("max stuck" in e.lower() for e in errors)
 
 
+class TestValidateFrozen:
+    def test_negative_frozen(self, validator):
+        config = PromptConfig(max_frozen=-1)
+        errors = validator.validate(config)
+        assert "Frozen must be >= 0" in errors
+
+    def test_zero_frozen_allowed(self, validator):
+        config = PromptConfig(max_frozen=0)
+        errors = validator.validate(config)
+        assert not any("frozen" in e.lower() for e in errors)
+
+    def test_positive_frozen_allowed(self, validator):
+        config = PromptConfig(max_frozen=5)
+        errors = validator.validate(config)
+        assert not any("frozen" in e.lower() for e in errors)
+
+
 class TestIsValid:
     def test_valid_config(self, validator):
         config = PromptConfig(
@@ -195,6 +212,7 @@ class TestIsValid:
             breadcrumb_enabled=False,
             max_iterations=0,
             max_stuck=2,
+            max_frozen=0,
         )
         assert validator.is_valid(config) is True
 
@@ -266,6 +284,7 @@ class TestValidatorPropertyBased:
     @given(
         max_iterations=st.integers(min_value=0, max_value=1000),
         max_stuck=st.integers(min_value=0, max_value=100),
+        max_frozen=st.integers(min_value=0, max_value=120),
     )
     @settings(
         max_examples=50,
@@ -273,7 +292,7 @@ class TestValidatorPropertyBased:
         suppress_health_check=[HealthCheck.function_scoped_fixture],
     )
     def test_valid_config_with_positive_iterations(
-        self, max_iterations, max_stuck, tmp_path
+        self, max_iterations, max_stuck, max_frozen, tmp_path
     ):
         validator = PromptValidator(execution_dir=tmp_path)
         existing_file = tmp_path / "doc.md"
@@ -287,6 +306,7 @@ class TestValidatorPropertyBased:
             breadcrumb_enabled=False,
             max_iterations=max_iterations,
             max_stuck=max_stuck,
+            max_frozen=max_frozen,
         )
         errors = validator.validate(config)
         assert not any("not found" in e for e in errors)
@@ -484,6 +504,29 @@ class TestValidatorPropertyBased:
             assert not any("Max stuck must be >= 0" in e for e in errors)
 
     @given(
+        max_frozen=st.integers(min_value=-100, max_value=100),
+    )
+    @settings(
+        max_examples=50,
+        deadline=None,
+        suppress_health_check=[HealthCheck.function_scoped_fixture],
+    )
+    def test_max_frozen_validation(self, max_frozen, tmp_path):
+        validator = PromptValidator(execution_dir=tmp_path)
+        config = PromptConfig(
+            task_mode="oneoff",
+            oneoff_prompt="test",
+            breadcrumb_enabled=False,
+            study_docs=[],
+            max_frozen=max_frozen,
+        )
+        errors = validator.validate(config)
+        if max_frozen < 0:
+            assert any("Frozen must be >= 0" in e for e in errors)
+        else:
+            assert not any("Frozen must be >= 0" in e for e in errors)
+
+    @given(
         study_docs=st.lists(filepath_strategy(), max_size=3),
         breadcrumbs_file=filepath_strategy(),
         tasklist_file=filepath_strategy(),
@@ -493,6 +536,7 @@ class TestValidatorPropertyBased:
         task_mode=st.sampled_from(["tasklist", "oneoff"]),
         max_iterations=st.integers(min_value=0, max_value=100),
         max_stuck=st.integers(min_value=0, max_value=10),
+        max_frozen=st.integers(min_value=0, max_value=120),
     )
     @settings(
         max_examples=20,
@@ -510,6 +554,7 @@ class TestValidatorPropertyBased:
         task_mode,
         max_iterations,
         max_stuck,
+        max_frozen,
         tmp_path,
     ):
         validator = PromptValidator(execution_dir=tmp_path)
@@ -531,6 +576,7 @@ class TestValidatorPropertyBased:
             task_mode=task_mode,
             max_iterations=max_iterations,
             max_stuck=max_stuck,
+            max_frozen=max_frozen,
         )
         errors = validator.validate(config)
         has_errors = len(errors) > 0

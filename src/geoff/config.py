@@ -14,6 +14,7 @@ class PromptConfig:
     theme: str = "catppuccin-mocha"
     max_iterations: int = 0
     max_stuck: int = 2
+    max_frozen: int = 0
     prompt_tasklist_study: str = "follow {tasklist} and choose the most important item to address. Complete that item and no other."
     prompt_tasklist_update: str = "Update {tasklist} when the task is done. If you discover issues, immediately update {tasklist} with your findings. When resolved, update {tasklist} and remove the item."
     prompt_backpressure_header: str = "IMPORTANT:"

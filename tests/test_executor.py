@@ -253,6 +253,25 @@ class TestExecuteOpencodeLoop:
 
     @patch("geoff.executor.time.sleep")
     @patch("geoff.executor.compute_repo_hash")
+    @patch("geoff.executor._run_opencode_with_frozen_timeout")
+    def test_uses_frozen_timeout_runner_when_configured(
+        self, mock_frozen_run, mock_hash, mock_sleep, tmp_path
+    ):
+        mock_hash.return_value = "abc123"
+
+        execute_opencode_loop(
+            "prompt",
+            max_iterations=1,
+            max_stuck=2,
+            max_frozen=5,
+            exec_dir=tmp_path,
+        )
+
+        mock_frozen_run.assert_called_once()
+        mock_sleep.assert_not_called()
+
+    @patch("geoff.executor.time.sleep")
+    @patch("geoff.executor.compute_repo_hash")
     @patch("geoff.executor.subprocess.run")
     def test_runs_indefinitely_when_max_iterations_zero(
         self, mock_run, mock_hash, mock_sleep, tmp_path

@@ -41,6 +41,7 @@ class TaskSourceApp(App):
     backpressure_enabled=st.booleans(),
     max_iterations=st.integers(min_value=0, max_value=100),
     max_stuck=st.integers(min_value=0, max_value=10),
+    max_frozen=st.integers(min_value=0, max_value=60),
 )
 @settings(max_examples=30)
 @pytest.mark.asyncio
@@ -51,6 +52,7 @@ async def test_task_source_initial_state(
     backpressure_enabled,
     max_iterations,
     max_stuck,
+    max_frozen,
 ):
     config = PromptConfig(
         task_mode=task_mode,
@@ -59,6 +61,7 @@ async def test_task_source_initial_state(
         backpressure_enabled=backpressure_enabled,
         max_iterations=max_iterations,
         max_stuck=max_stuck,
+        max_frozen=max_frozen,
     )
     app = TaskSourceApp(config)
 
@@ -83,6 +86,7 @@ async def test_task_source_initial_state(
         )
         assert widget.query_one("#max-iterations", Input).value == str(max_iterations)
         assert widget.query_one("#max-stuck", Input).value == str(max_stuck)
+        assert widget.query_one("#max-frozen", Input).value == str(max_frozen)
 
 
 @given(
@@ -254,7 +258,7 @@ async def test_backpressure_toggle_property(initial_enabled, toggle_times):
 
 @pytest.mark.asyncio
 async def test_loop_config_edit():
-    config = PromptConfig(max_iterations=0, max_stuck=2)
+    config = PromptConfig(max_iterations=0, max_stuck=2, max_frozen=0)
     app = TaskSourceApp(config)
 
     async with app.run_test() as pilot:
@@ -279,3 +283,10 @@ async def test_loop_config_edit():
         stuck_input.post_message(Input.Changed(stuck_input, "10"))
         await pilot.pause()
         assert config.max_stuck == 10
+
+        # Frozen
+        frozen_input = widget.query_one("#max-frozen", Input)
+        frozen_input.value = "15"
+        frozen_input.post_message(Input.Changed(frozen_input, "15"))
+        await pilot.pause()
+        assert config.max_frozen == 15

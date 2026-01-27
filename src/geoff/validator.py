@@ -60,6 +60,9 @@ class PromptValidator:
         if config.max_stuck < 0:
             errors.append("Max stuck must be >= 0")
 
+        if config.max_frozen < 0:
+            errors.append("Frozen must be >= 0")
+
         return errors
 
     def is_valid(self, config: PromptConfig) -> bool:

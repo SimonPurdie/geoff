@@ -140,6 +140,7 @@ class GeoffApp(App):
                 prompt,
                 self.prompt_config.max_iterations,
                 self.prompt_config.max_stuck,
+                self.prompt_config.max_frozen,
             )
         )
 
