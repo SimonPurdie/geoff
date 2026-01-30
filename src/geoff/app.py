@@ -6,7 +6,7 @@ from textual.widgets import Header, Static
 from geoff.config_manager import ConfigManager
 from geoff.prompt_builder import build_prompt
 from geoff.validator import PromptValidator
-from geoff.clipboard import copy_to_clipboard
+from geoff.clipboard import ClipboardError, copy_to_clipboard
 from geoff.messages import ConfigUpdated
 from geoff.widgets.study_docs import StudyDocsWidget
 from geoff.widgets.task_source import TaskSourceWidget
@@ -113,10 +113,11 @@ class GeoffApp(App):
             return
 
         prompt = build_prompt(self.prompt_config)
-        if copy_to_clipboard(prompt):
+        try:
+            copy_to_clipboard(prompt)
             self.notify("Prompt copied to clipboard", severity="information")
-        else:
-            self.notify("Failed to copy to clipboard", severity="error")
+        except ClipboardError as e:
+            self.notify(f"Clipboard error: {e}", severity="error", timeout=15)
 
     def on_toolbar_widget_run_once(self, message: ToolbarWidget.RunOnce) -> None:
         errors = self.validator.validate(self.prompt_config)
